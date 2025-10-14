@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>HARNECT - Explore</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="top-nav">
+   <div class="logo"><span style="color:#3498db;font-weight:bold;">HAR</span><span style="color:black;font-weight:bold;">NECT</span></div>
+  <div class="page-title">Explore</div>
+  <div class="theme-toggle" id="themeToggle">🌙</div>
+</header>
+
+<main class="content explore-page">
+  <h2>Explore</h2>
+
+  <!-- Search Bar -->
+  <form action="{{ url_for('explore') }}" method="GET" class="search-form">
+    <input type="text" name="query" placeholder="Search users or posts..." value="{{ query }}">
+    <button type="submit">🔍</button>
+  </form>
+
+  <!-- Results Grid -->
+  <div class="explore-results">
+    {% if results %}
+      {% for item in results %}
+        {% if item.type == 'user' %}
+          <a href="{{ url_for('profile', username=item.username) }}" class="explore-item user-item">
+            <div class="user-box">@{{ item.username }}</div>
+          </a>
+        {% elif item.type == 'post' %}
+          <div class="explore-item post-item">
+            <a href="{{ url_for('profile', username=item.user) }}"><strong>@{{ item.user }}</strong></a>
+            
+            {% if item.filename.endswith(('.mp4','.webm','.ogg','.avi')) %}
+              <video controls>
+                <source src="{{ url_for('static', filename='uploads/' + item.filename) }}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            {% else %}
+              <img src="{{ url_for('static', filename='uploads/' + item.filename) }}" alt="{{ item.caption }}">
+            {% endif %}
+            
+            <p>{{ item.caption }}</p>
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      <p>No results found.</p>
+    {% endif %}
+  </div>
+</main>
+
+<!-- Bottom Navigation -->
+<nav class="bottom-nav">
+  <a href="{{ url_for('index') }}">🏠<span>Home</span></a>
+  <a href="{{ url_for('explore') }}" class="active">🔍<span>Explore</span></a>
+  <a href="{{ url_for('upload') }}" class="upload-btn">➕</a>
+  <a href="{{ url_for('feedback') }}">💬<span>Feedback</span></a>
+  <a href="{% if user %}{{ url_for('profile', username=user) }}{% else %}{{ url_for('login') }}{% endif %}">👤<span>Profile</span></a>
+</nav>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

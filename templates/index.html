@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HARNECT — Feed</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="top-nav">
+  <div class="logo">HARNECT</div>
+  <div class="page-title">Home</div>
+  <div class="theme-toggle" id="themeToggle">🌙</div>
+</header>
+<!-- Stories Section -->
+<div class="stories">
+  <!-- My Story -->
+  {% if user %}
+    {% set my_story = stories | selectattr('user', 'equalto', user) | list %}
+    {% if my_story %}
+      <div class="story" onclick="openStories('{{ user }}')">
+        <div class="story-circle">
+          <img src="{{ url_for('static', filename='uploads/' + my_story[0].filename) }}" alt="My Story">
+        </div>
+        <p>You</p>
+      </div>
+    {% endif %}
+  {% endif %}
+
+  <!-- Other Users' Stories -->
+  {% set shown_users = [] %}
+  {% for story in stories %}
+    {% if story.user not in shown_users %}
+      {% set _ = shown_users.append(story.user) %}
+      <div class="story" onclick="openStories('{{ story.user }}')">
+        <div class="story-circle">
+          <img src="{{ url_for('static', filename='uploads/' + story.filename) }}" alt="@{{ story.user }} Story">
+        </div>
+        <p>@{{ story.user }}</p>
+      </div>
+    {% endif %}
+  {% endfor %}
+</div>
+
+<main class="content feed">
+  {% for post in posts %}
+    <div class="post" id="post-{{ post.filename }}">
+      {% if post.filename.endswith(('.mp4','.webm','.ogg','.avi')) %}
+        <video controls>
+          <source src="{{ url_for('static', filename='uploads/' + post.filename) }}" type="video/mp4">
+          Your browser does not support the video.
+        </video>
+      {% else %}
+        <img src="{{ url_for('static', filename='uploads/' + post.filename) }}" alt="{{ post.caption }}">
+      {% endif %}
+
+      <div class="post-info">
+        <p><strong>@{{ post.user }}</strong></p>
+        <p>{{ post.caption }}</p>
+      </div>
+
+      <div class="post-actions">
+        <button class="like-btn {% if user in post.likes %}liked{% endif %}" onclick="likePost(event, '{{ post.filename }}', this)">
+          ❤️ {{ post.likes|length if post.likes else 0 }} Likes
+        </button>
+
+        <form class="comment-form" onsubmit="submitComment(event, '{{ post.filename }}')">
+          <input type="text" name="comment" placeholder="Add comment..." required>
+          <button type="submit">💬 Comment</button>
+        </form>
+
+        <button class="share-btn" onclick="sharePost('{{ url_for('static', filename='uploads/' + post.filename) }}')">
+          🔄 Share
+        </button>
+
+        {% if user == post.user %}
+          <button onclick="deletePost('{{ post.filename }}', 'post-{{ post.filename }}')">🗑️ Delete</button>
+        {% endif %}
+      </div>
+
+      <div class="comments" id="comments-{{ post.filename }}">
+        {% for c in post.comments %}
+          <p><strong>@{{ c.user }}:</strong> {{ c.text }}</p>
+        {% endfor %}
+      </div>
+    </div>
+  {% endfor %}
+</main>
+
+<nav class="bottom-nav">
+  <a href="{{ url_for('index') }}" class="active">🏠<span>Home</span></a>
+  <a href="{{ url_for('explore') }}">🔍<span>Explore</span></a>
+  <a href="{{ url_for('upload') }}" class="upload-btn">➕</a>
+  <a href="{{ url_for('feedback') }}">💬<span>Feedback</span></a>
+  <a href="{% if user %}{{ url_for('profile', username=user) }}{% else %}{{ url_for('login') }}{% endif %}">👤<span>Profile</span></a>
+</nav>
+<div id="storyModal" class="story-modal" onclick="closeStory()">
+  <div class="story-content" onclick="event.stopPropagation()">
+    <h3 id="storyUser"></h3>
+    <div id="storyMediaContainer" class="story-media"></div>
+
+    <div class="story-controls">
+      <button onclick="prevStory()">⏮ Back</button>
+      <button onclick="nextStory()">Next ⏭</button>
+      <button id="deleteStoryBtn" onclick="deleteStory()" style="display:none;">🗑 Delete</button>
+    </div>
+
+    <div class="story-progress">
+      <div id="progressBar"></div>
+    </div>
+  </div>
+</div>
+
+
+
+<script id="storiesData" type="application/json">
+  {{ stories | tojson }}
+</script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
