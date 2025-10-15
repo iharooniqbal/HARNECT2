@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HARNECT - Welcome</title>
+  <title>HARNETO - Welcome</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body class="splash-body">
   <div class="splash-container">
-    <img src="{{ url_for('static', filename='uploads/user.png') }}" alt="logo" class="splash-logo">
-    <h1 class="splash-title">HAR NECT</h1>
+    <img src="{{ url_for('static', filename='uploads/user.png') }}" alt="HARNETO Logo" class="splash-logo">
+    <h1 class="splash-title">Welcome to <span>HARNETO</span></h1>
+    <p class="splash-subtitle">Connect. Share. Inspire.</p>
   </div>
 
   <script>
-    // Redirect to login page after 3 seconds
+    // Redirect to login after 3 seconds
     setTimeout(() => {
       window.location.href = "{{ url_for('login') }}";
     }, 3000);
