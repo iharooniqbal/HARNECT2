@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feedback | HARNECT</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="{% if session.get('theme') == 'dark' %}dark{% endif %}">
+  {% include 'navbar.html' %}
+
+  <div class="feedback-page">
+    <h2>💌 Give Your Feedback</h2>
+
+    <form id="feedbackForm">
+      <input type="text" id="name" name="name" placeholder="Your name (optional)">
+      <textarea id="message" name="message" placeholder="Write your feedback..." required></textarea>
+      <button type="submit">Send Feedback</button>
+    </form>
+
+    <div class="feedback-list" id="feedbackList">
+      {% for f in feedbacks %}
+      <div class="feedback-item">
+        <strong>{{ f.name }}</strong>
+        <p>{{ f.message }}</p>
+      </div>
+      {% else %}
+      <p>No feedback yet. Be the first!</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value || 'Anonymous';
+      const message = document.getElementById('message').value.trim();
+      if (!message) return alert('Please write something!');
+
+      fetch('/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, message })
+      })
+      .then(res => res.json())
+      .then(data => {
+        const list = document.getElementById('feedbackList');
+        list.innerHTML = '';
+        data.forEach(f => {
+          const div = document.createElement('div');
+          div.className = 'feedback-item';
+          div.innerHTML = `<strong>${f.name}</strong><p>${f.message}</p>`;
+          list.prepend(div);
+        });
+        document.getElementById('message').value = '';
+      })
+      .catch(err => console.error(err));
+    });
+  </script>
+</body>
+</html>
