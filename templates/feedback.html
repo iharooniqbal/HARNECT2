@@ -1,62 +1,83 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Feedback | HARNECT</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>HARNECT - Feedback</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body class="{% if session.get('theme') == 'dark' %}dark{% endif %}">
-  {% include 'navbar.html' %}
+<body>
+<header class="top-nav">
+   <div class="logo"><span class="logo-blue">HAR</span><span class="logo-brown">NECT</span></div>
+  <div class="page-title">Feedback</div>
+  <div class="theme-toggle" id="themeToggle">🌙</div>
+</header>
 
-  <div class="feedback-page">
-    <h2>💌 Give Your Feedback</h2>
+<main class="content feedback-page">
+  <h2>Feedback</h2>
 
-    <form id="feedbackForm">
-      <input type="text" id="name" name="name" placeholder="Your name (optional)">
-      <textarea id="message" name="message" placeholder="Write your feedback..." required></textarea>
-      <button type="submit">Send Feedback</button>
-    </form>
+  <form id="feedbackForm">
+    <input type="text" name="name" placeholder="Your Name (optional)">
+    <textarea name="message" placeholder="Write your feedback..." required></textarea>
+    <button type="submit">Submit Feedback</button>
+  </form>
 
-    <div class="feedback-list" id="feedbackList">
-      {% for f in feedbacks %}
+  <div class="feedback-list">
+    {% for fb in feedbacks %}
       <div class="feedback-item">
-        <strong>{{ f.name }}</strong>
-        <p>{{ f.message }}</p>
+        <strong>{{ fb.name }}</strong>
+        <p>{{ fb.message }}</p>
       </div>
-      {% else %}
-      <p>No feedback yet. Be the first!</p>
-      {% endfor %}
-    </div>
+    {% endfor %}
   </div>
+</main>
 
-  <script>
-    document.getElementById('feedbackForm').addEventListener('submit', function(e) {
-      e.preventDefault();
 
-      const name = document.getElementById('name').value || 'Anonymous';
-      const message = document.getElementById('message').value.trim();
-      if (!message) return alert('Please write something!');
+<nav class="bottom-nav">
+  <a href="{{ url_for('index') }}">🏠<span>Home</span></a>
+  <a href="{{ url_for('explore') }}">🔍<span>Explore</span></a>
+  <a href="{{ url_for('upload') }}" class="upload-btn">➕</a>
+  <a href="{{ url_for('feedback') }}" class="active">💬<span>Feedback</span></a>
+  <a href="{{ url_for('profile', username=user) }}">👤<span>Profile</span></a>
+</nav>
 
-      fetch('/feedback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, message })
-      })
-      .then(res => res.json())
-      .then(data => {
-        const list = document.getElementById('feedbackList');
-        list.innerHTML = '';
-        data.forEach(f => {
-          const div = document.createElement('div');
-          div.className = 'feedback-item';
-          div.innerHTML = `<strong>${f.name}</strong><p>${f.message}</p>`;
-          list.prepend(div);
-        });
-        document.getElementById('message').value = '';
-      })
-      .catch(err => console.error(err));
+<script>
+const feedbackForm = document.getElementById('feedbackForm');
+const feedbackList = document.getElementById('feedbackList');
+
+feedbackForm.addEventListener('submit', function(e){
+  e.preventDefault();
+  const formData = new FormData(feedbackForm);
+  const data = {
+    name: formData.get('name') || 'Anonymous',
+    message: formData.get('message') || ''
+  };
+  if (!data.message.trim()) return;
+
+  fetch("{{ url_for('feedback') }}", {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(feedbacks => {
+    feedbackList.innerHTML = '';
+    if(feedbacks.length === 0){
+      feedbackList.innerHTML = '<p>No feedback yet. Be the first to give feedback!</p>';
+      return;
+    }
+    feedbacks.forEach(f => {
+      const div = document.createElement('div');
+      div.className = 'feedback-item';
+      div.innerHTML = `<p><strong>${f.name}:</strong> ${f.message}</p>`;
+      feedbackList.appendChild(div);
     });
-  </script>
+    feedbackForm.reset();
+  })
+  .catch(err => console.error(err));
+});
+</script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
 </body>
 </html>
