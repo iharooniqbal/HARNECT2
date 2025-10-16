@@ -21,6 +21,7 @@
       <input type="password" name="password" placeholder="Password" required>
       <button type="submit" class="btn-primary">Log In</button>
     </form>
+    <a href="{{ url_for('guest_login') }}" class="guest-btn">Continue as Guest</a>
 
     <p class="text-center">
       Don't have an account? <a href="{{ url_for('signup') }}">Sign Up</a>

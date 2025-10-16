@@ -14,19 +14,22 @@
 </header>
 
 <main class="upload-page">
-  <form class="upload-form" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
-    <h2>Upload Post</h2>
-    <input type="file" name="file" required>
-    <input type="text" name="caption" placeholder="Write a caption..." required>
-    <button type="submit" name="upload_type" value="post" class="blue-btn">Upload Post</button>
-  </form>
+  <div class="upload-container">
+    <form class="upload-form" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+      <h2>Upload Post</h2>
+      <input type="file" name="file" required>
+      <input type="text" name="caption" placeholder="Write a caption..." required>
+      <button type="submit" name="upload_type" value="post" class="blue-btn">Upload Post</button>
+    </form>
 
-  <form class="upload-form" action="{{ url_for('upload_story') }}" method="POST" enctype="multipart/form-data">
-    <h2>Upload Story</h2>
-    <input type="file" name="story" required>
-    <button type="submit" class="blue-btn">Upload Story</button>
-  </form>
+    <form class="upload-form" action="{{ url_for('upload_story') }}" method="POST" enctype="multipart/form-data">
+      <h2>Upload Story</h2>
+      <input type="file" name="story" required>
+      <button type="submit" class="blue-btn">Upload Story</button>
+    </form>
+  </div>
 </main>
+
 
 
 <nav class="bottom-nav">

@@ -27,20 +27,20 @@
     {% endif %}
   {% endif %}
 
-  <!-- Other Users' Stories -->
-  {% set shown_users = [] %}
-  {% for story in stories %}
-    {% if story.user not in shown_users %}
-      {% set _ = shown_users.append(story.user) %}
-      <div class="story" onclick="openStories('{{ story.user }}')">
-        <div class="story-circle">
-          <img src="{{ url_for('static', filename='uploads/' + story.filename) }}" alt="@{{ story.user }} Story">
-        </div>
-        <p>@{{ story.user }}</p>
+ <!-- Other Users' Stories -->
+{% set shown_users = [] %}
+{% for story in stories %}
+  {% if story.user not in shown_users %}
+    {% set _ = shown_users.append(story.user) %}
+    <div class="story" onclick="openStories('{{ story.user }}')">
+      <div class="story-circle">
+        <img src="{{ url_for('static', filename='uploads/' + (story.thumbnail if story.thumbnail else story.filename)) }}" alt="@{{ story.user }} Story">
       </div>
-    {% endif %}
-  {% endfor %}
-</div>
+      <p>@{{ story.user }}</p>
+    </div>
+  {% endif %}
+{% endfor %}
+
 
 <main class="content feed">
   {% for post in posts %}

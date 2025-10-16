@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
-import os, uuid
+import os, uuid, random
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
@@ -57,15 +57,40 @@ def signup():
             'profile_pic': 'user.png',
             'email': e,
             'followers': set(),
-            'following': set()
+            'following': set(),
+            'guest': False
         }
         session['user'] = u
         return redirect(url_for('index'))
     return render_template('signup.html')
 
+# -------------------------
+# GUEST USER OPTION
+# -------------------------
+@app.route('/guest')
+def guest_login():
+    # Generate unique guest username
+    guest_name = f"Guest_{random.randint(1000, 9999)}"
+    session['user'] = guest_name
+
+    users[guest_name] = {
+        'password': None,
+        'bio': 'I am a guest user.',
+        'profile_pic': 'user.png',
+        'email': None,
+        'followers': set(),
+        'following': set(),
+        'guest': True
+    }
+
+    flash(f'Welcome, {guest_name}! You are logged in as a guest.')
+    return redirect(url_for('index'))
+
 @app.route('/logout')
 def logout():
-    session.pop('user', None)
+    user = session.pop('user', None)
+    if user and user.startswith('Guest_') and user in users:
+        del users[user]  # Remove guest data after logout
     return redirect(url_for('login'))
 
 # -------------------------
@@ -76,14 +101,15 @@ def index():
     if 'user' not in session:
         return redirect(url_for('login'))
 
-    story_posts = [p for p in stories]  # Only stories
+    story_posts = [p for p in stories]
     feed_posts = [p for p in posts if p['type'] == 'post']
 
     return render_template(
         'index.html',
         user=session['user'],
         stories=story_posts,
-        posts=feed_posts
+        posts=feed_posts,
+        guest=users[session['user']].get('guest', False)
     )
 
 @app.route('/explore')
@@ -92,10 +118,10 @@ def explore():
     results = []
     for u, data in users.items():
         if query.lower() in u.lower():
-            results.append({'type':'user','username':u})
+            results.append({'type': 'user', 'username': u})
     for p in posts:
-        if query.lower() in p.get('caption','').lower() and p['type']=='post':
-            results.append({'type':'post','user':p['user'],'filename':p['filename'],'caption':p.get('caption')})
+        if query.lower() in p.get('caption', '').lower() and p['type'] == 'post':
+            results.append({'type': 'post', 'user': p['user'], 'filename': p['filename'], 'caption': p.get('caption')})
     return render_template('explore.html', user=session.get('user'), posts=posts, results=results, query=query)
 
 # -------------------------
@@ -106,38 +132,51 @@ def upload():
     if 'user' not in session:
         return redirect(url_for('login'))
 
-    if request.method == 'POST':
-        file = request.files.get('file')
-        caption = request.form.get('caption', '')
+    current_user = session['user']
+    is_guest = users[current_user].get('guest', False)
 
-        if not file or not allowed_file(file.filename):
-            flash('Invalid or missing file!')
-            return redirect(url_for('upload'))
+    # Guest users can view but not upload
+    if request.method == 'GET':
+        all_posts = [p for p in posts if p['type'] == 'post']
+        return render_template('upload.html', user=current_user, guest=is_guest, posts=all_posts)
 
-        filename = secure_filename(file.filename)
-        ext = filename.rsplit('.', 1)[1].lower()
-        unique_name = f"{uuid.uuid4()}.{ext}"
-        save_path = os.path.join(UPLOAD_FOLDER, unique_name)
-        file.save(save_path)
+    if is_guest:
+        flash("Guest users cannot upload posts. Please sign up!")
+        return redirect(url_for('upload'))
 
-        posts.append({
-            'user': session['user'],
-            'filename': unique_name,
-            'caption': caption,
-            'likes': [],
-            'comments': [],
-            'type': 'post'
-        })
+    file = request.files.get('file')
+    caption = request.form.get('caption', '')
 
-        flash('Post uploaded successfully!')
-        return redirect(url_for('index'))
+    if not file or not allowed_file(file.filename):
+        flash('Invalid or missing file!')
+        return redirect(url_for('upload'))
 
-    return render_template('upload.html', user=session.get('user'))
+    filename = secure_filename(file.filename)
+    ext = filename.rsplit('.', 1)[1].lower()
+    unique_name = f"{uuid.uuid4()}.{ext}"
+    save_path = os.path.join(UPLOAD_FOLDER, unique_name)
+    file.save(save_path)
+
+    posts.append({
+        'user': current_user,
+        'filename': unique_name,
+        'caption': caption,
+        'likes': [],
+        'comments': [],
+        'type': 'post'
+    })
+
+    flash('Post uploaded successfully!')
+    return redirect(url_for('index'))
 
 @app.route('/upload_story', methods=['POST'])
 def upload_story():
     if 'user' not in session:
         return redirect(url_for('login'))
+
+    if users[session['user']].get('guest'):
+        flash("Guest users cannot upload stories. Please sign up!")
+        return redirect(url_for('index'))
 
     story_file = request.files.get('story')
     if not story_file or not allowed_file(story_file.filename):
@@ -157,30 +196,24 @@ def upload_story():
     flash('Story uploaded successfully!')
     return redirect(url_for('index'))
 
-@app.route('/delete_story/<story_id>', methods=['POST'])
-def delete_story(story_id):
-    stories_file = os.path.join('data', 'stories.json')
-    if os.path.exists(stories_file):
-        with open(stories_file, 'r') as f:
-            stories = json.load(f)
-        stories = [s for s in stories if s['id'] != story_id]
-        with open(stories_file, 'w') as f:
-            json.dump(stories, f, indent=2)
-        return jsonify({"message": "Story deleted successfully"})
-    return jsonify({"message": "Story not found"}), 404
-
 # -------------------------
-# PROFILE ROUTE
+# PROFILE
 # -------------------------
 @app.route('/profile/<username>', methods=['GET','POST'])
 def profile(username):
     if username not in users:
         return "User not found", 404
     user_data = users[username]
+
     if request.method == 'POST' and session.get('user') == username:
+        if user_data.get('guest'):
+            flash("Guest users cannot edit profiles.")
+            return redirect(url_for('profile', username=username))
+
         new_username = request.form.get('username')
         bio = request.form.get('bio')
         profile_pic_file = request.files.get('profile_pic')
+
         if new_username and new_username != username:
             users[new_username] = users.pop(username)
             session['user'] = new_username
@@ -192,7 +225,8 @@ def profile(username):
             profile_pic_file.save(os.path.join(UPLOAD_FOLDER, filename))
             users[username]['profile_pic'] = filename
         return redirect(url_for('profile', username=username))
-    user_posts = [p for p in posts if p['user']==username]
+
+    user_posts = [p for p in posts if p['user'] == username]
     return render_template('profile.html', user=session.get('user'), profile_user=username, user_data=user_data, posts=user_posts)
 
 # -------------------------
@@ -202,45 +236,45 @@ def profile(username):
 def like_post(filename):
     u = session.get('user')
     if not u:
-        return jsonify({'error':'Not logged in'}), 401
+        return jsonify({'error': 'Not logged in'}), 401
     for p in posts:
-        if p['filename']==filename:
+        if p['filename'] == filename:
             if u in p['likes']:
                 p['likes'].remove(u)
-                liked=False
+                liked = False
             else:
                 p['likes'].append(u)
-                liked=True
+                liked = True
             return jsonify({'liked': liked, 'likes': len(p['likes'])})
-    return jsonify({'error':'Post not found'}), 404
+    return jsonify({'error': 'Post not found'}), 404
 
 @app.route('/comment_post/<filename>', methods=['POST'])
 def comment_post(filename):
     u = session.get('user')
     if not u:
-        return jsonify({'error':'Not logged in'}), 401
+        return jsonify({'error': 'Not logged in'}), 401
     data = request.get_json()
     text = data.get('comment')
     if not text:
-        return jsonify({'error':'Empty comment'}), 400
+        return jsonify({'error': 'Empty comment'}), 400
     for p in posts:
-        if p['filename']==filename:
-            p['comments'].append({'user':u,'text':text})
+        if p['filename'] == filename:
+            p['comments'].append({'user': u, 'text': text})
             return jsonify({'comments': p['comments']})
-    return jsonify({'error':'Post not found'}), 404
+    return jsonify({'error': 'Post not found'}), 404
 
 @app.route('/delete_post/<filename>', methods=['POST'])
 def delete_post(filename):
     u = session.get('user')
     for p in posts:
-        if p['filename']==filename and p['user']==u:
+        if p['filename'] == filename and p['user'] == u:
             posts.remove(p)
             try:
                 os.remove(os.path.join(UPLOAD_FOLDER, filename))
             except:
                 pass
-            return jsonify({'success':True})
-    return jsonify({'error':'Not allowed or post not found'}), 403
+            return jsonify({'success': True})
+    return jsonify({'error': 'Not allowed or post not found'}), 403
 
 # -------------------------
 # FOLLOW / UNFOLLOW
@@ -249,11 +283,11 @@ def delete_post(filename):
 def follow(username):
     current_user = session.get('user')
     if not current_user:
-        return jsonify({'error':'Not logged in'}), 401
+        return jsonify({'error': 'Not logged in'}), 401
     if username not in users:
-        return jsonify({'error':'User not found'}), 404
+        return jsonify({'error': 'User not found'}), 404
     if username == current_user:
-        return jsonify({'error':'Cannot follow yourself'}), 400
+        return jsonify({'error': 'Cannot follow yourself'}), 400
 
     if current_user in users[username]['followers']:
         users[username]['followers'].remove(current_user)
@@ -272,12 +306,12 @@ def follow(username):
 # -------------------------
 # FEEDBACK
 # -------------------------
-@app.route('/feedback', methods=['GET','POST'])
+@app.route('/feedback', methods=['GET', 'POST'])
 def feedback():
-    if request.method=='POST':
+    if request.method == 'POST':
         data = request.get_json()
-        name = data.get('name','Anonymous')
-        message = data.get('message','')
+        name = data.get('name', 'Anonymous')
+        message = data.get('message', '')
         if message.strip():
             feedbacks.append({'name': name, 'message': message})
         return jsonify(feedbacks)
@@ -286,5 +320,5 @@ def feedback():
 # -------------------------
 # RUN APP
 # -------------------------
-if __name__=="__main__":
+if __name__ == "__main__":
     app.run(debug=True)
