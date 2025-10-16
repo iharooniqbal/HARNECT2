@@ -189,10 +189,14 @@ def upload_story():
     save_path = os.path.join(UPLOAD_FOLDER, unique_name)
     story_file.save(save_path)
 
+    # append story with explicit type (and optional id)
     stories.append({
+        'id': str(uuid.uuid4()),
         'user': session['user'],
-        'filename': unique_name
+        'filename': unique_name,
+        'type': 'story'
     })
+
     flash('Story uploaded successfully!')
     return redirect(url_for('index'))
 
