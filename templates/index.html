@@ -45,25 +45,51 @@
 {% endfor %}
   </div>
 
-  <!-- Feed Section -->
-  <main class="feed">
-    {% for post in posts %}
-      <div class="post" id="post-{{ post.filename }}">
-        {% if post.filename.endswith(('.mp4','.webm','.ogg','.avi')) %}
-          <video controls>
-            <source src="{{ url_for('static', filename='uploads/' + post.filename) }}" type="video/mp4">
-          </video>
-        {% else %}
-          <img src="{{ url_for('static', filename='uploads/' + post.filename) }}" alt="{{ post.caption }}">
-        {% endif %}
+ <!-- Feed Section -->
+  <main class="content feed">
+  {% for post in posts %}
+    <div class="post" id="post-{{ post.filename }}">
+      {% if post.filename.endswith(('.mp4','.webm','.ogg','.avi')) %}
+        <video controls>
+          <source src="{{ url_for('static', filename='uploads/' + post.filename) }}" type="video/mp4">
+          Your browser does not support the video.
+        </video>
+      {% else %}
+        <img src="{{ url_for('static', filename='uploads/' + post.filename) }}" alt="{{ post.caption }}">
+      {% endif %}
 
-        <div class="post-info">
-          <p><strong>@{{ post.user }}</strong></p>
-          <p>{{ post.caption }}</p>
-        </div>
+      <div class="post-info">
+        <p><strong>@{{ post.user }}</strong></p>
+        <p>{{ post.caption }}</p>
       </div>
-    {% endfor %}
-  </main>
+
+      <div class="post-actions">
+        <button class="like-btn {% if user in post.likes %}liked{% endif %}" onclick="likePost(event, '{{ post.filename }}', this)">
+          ❤️ {{ post.likes|length if post.likes else 0 }} Likes
+        </button>
+
+        <form class="comment-form" onsubmit="submitComment(event, '{{ post.filename }}')">
+          <input type="text" name="comment" placeholder="Add comment..." required>
+          <button type="submit">💬 Comment</button>
+        </form>
+
+        <button class="share-btn" onclick="sharePost('{{ url_for('static', filename='uploads/' + post.filename) }}')">
+          🔄 Share
+        </button>
+
+        {% if user == post.user %}
+          <button onclick="deletePost('{{ post.filename }}', 'post-{{ post.filename }}')">🗑️ Delete</button>
+        {% endif %}
+      </div>
+
+      <div class="comments" id="comments-{{ post.filename }}">
+        {% for c in post.comments %}
+          <p><strong>@{{ c.user }}:</strong> {{ c.text }}</p>
+        {% endfor %}
+      </div>
+    </div>
+  {% endfor %}
+</main>
 
   <!-- Bottom Nav -->
   <nav class="bottom-nav">
@@ -73,6 +99,23 @@
     <a href="{{ url_for('feedback') }}">💬<span>Feedback</span></a>
     <a href="{% if user %}{{ url_for('profile', username=user) }}{% else %}{{ url_for('login') }}{% endif %}">👤<span>Profile</span></a>
   </nav>
+
+<div id="storyModal" class="story-modal" onclick="closeStory()">
+  <div class="story-content" onclick="event.stopPropagation()">
+    <h3 id="storyUser"></h3>
+    <div id="storyMediaContainer" class="story-media"></div>
+
+    <div class="story-controls">
+      <button onclick="prevStory()">⏮ Back</button>
+      <button onclick="nextStory()">Next ⏭</button>
+      <button id="deleteStoryBtn" onclick="deleteStory()" style="display:none;">🗑 Delete</button>
+    </div>
+
+    <div class="story-progress">
+      <div id="progressBar"></div>
+    </div>
+  </div>
+</div>
 
   <script id="storiesData" type="application/json">
     {{ stories | tojson }}
