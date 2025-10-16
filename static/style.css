@@ -243,11 +243,12 @@ body.dark .story p {
 }
 
 /* Image */
-.post img {
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-  display: block;
+.post img { 
+  width: 100%; 
+  height: auto; 
+  margin: 0 auto 20px; 
+  object-fit: cover; 
+  display: block; 
 }
 
 .post video {
