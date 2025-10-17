@@ -260,6 +260,26 @@ body.dark .story p {
   margin-bottom: 10px;      /* Space below video */
 }
 
+.story-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: inline-block;
+    border: 2px solid #f58529; /* optional Instagram border */
+}
+
+.story-circle img,
+.story-circle video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.story-video {
+    pointer-events: none; /* prevent controls from showing */
+}
+
 
 /* Caption area */
 .post .caption {

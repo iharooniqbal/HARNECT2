@@ -13,7 +13,7 @@
   <div class="theme-toggle" id="themeToggle">🌙</div>
 </header>
 
-<!-- Stories Section -->
+<!-- Stories Section --> 
 <div class="stories">
   <!-- My Story -->
   {% if user %}
@@ -21,27 +21,43 @@
     {% if my_story %}
       <div class="story" onclick="openStories('{{ user }}')">
         <div class="story-circle">
-          <img src="{{ url_for('static', filename='uploads/' + my_story[0].filename) }}" alt="My Story">
+          {% set file = my_story[-1].filename %} <!-- latest story -->
+          {% if file.endswith(('.mp4', '.webm', '.ogg', '.avi')) %}
+            <video class="story-video" muted>
+              <source src="{{ url_for('static', filename='uploads/' + file) }}" type="video/mp4">
+            </video>
+          {% else %}
+            <img src="{{ url_for('static', filename='uploads/' + file) }}" alt="My Story">
+          {% endif %}
         </div>
-        <p>You</p>
+        {% if not file.endswith(('.mp4', '.webm', '.ogg', '.avi')) %}
+          <p>You</p>
+        {% endif %}
       </div>
     {% endif %}
   {% endif %}
 
- <!-- Other Users' Stories -->
-{% set shown_users = [] %}
-{% for story in stories %}
-  {% if story.user not in shown_users %}
-    {% set _ = shown_users.append(story.user) %}
-    <div class="story" onclick="openStories('{{ story.user }}')">
-      <div class="story-circle">
-        <img src="{{ url_for('static', filename='uploads/' + story.filename) }}" alt="@{{ story.user }} Story">
+  <!-- Other Users' Stories -->
+  {% set shown_users = [] %}
+  {% for story in stories %}
+    {% if story.user != user and story.user not in shown_users %}
+      {% set _ = shown_users.append(story.user) %}
+      <div class="story" onclick="openStories('{{ story.user }}')">
+        <div class="story-circle">
+          {% set file = story.filename %}
+          {% if file.endswith(('.mp4', '.webm', '.ogg', '.avi')) %}
+            <video class="story-video" muted>
+              <source src="{{ url_for('static', filename='uploads/' + file) }}" type="video/mp4">
+            </video>
+          {% else %}
+            <img src="{{ url_for('static', filename='uploads/' + file) }}" alt="@{{ story.user }} Story">
+          {% endif %}
+        </div>
       </div>
-      <p>@{{ story.user }}</p>
-    </div>
-  {% endif %}
-{% endfor %}
+    {% endif %}
+  {% endfor %}
 </div>
+
 
 <main class="content feed">
   {% for post in posts %}
