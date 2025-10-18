@@ -1123,3 +1123,70 @@ button.follow-btn:hover {
 .guest-btn:hover {
   background: #666;
 }
+
+
+/* GUEST STYLING */
+
+/* Container fills screen without disturbing site layout */
+.guest-warning-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* Yellow box with animation */
+.guest-warning-box {
+  background: #ffcc00;
+  color: #000;
+  padding: 40px 50px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+  animation: fadeIn 0.6s ease-out;
+}
+
+.guest-warning-box h2 {
+  margin-bottom: 15px;
+  font-size: 24px;
+}
+
+.guest-warning-box p {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Button style */
+.guest-btn {
+  display: inline-block;
+  margin-top: 20px;
+  background: #000;
+  color: #fff;
+  padding: 12px 25px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+.guest-btn:hover {
+  background: #333;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

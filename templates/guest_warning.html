@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guest Mode Notice</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='guest_warning.css') }}">
+</head>
+<body>
+  <div class="overlay">
+    <div class="note-box">
+      <h2>Guest Mode Active</h2>
+      <p>You can only view content.<br>Please log in or sign up to upload posts.</p>
+      <a href="{{ url_for('index') }}" class="btn">Go Back</a>
+    </div>
+  </div>
+</body>
+</html>

@@ -135,15 +135,15 @@ def upload():
     current_user = session['user']
     is_guest = users[current_user].get('guest', False)
 
-    # Guest users can view but not upload
+    # If GET request → show upload page
     if request.method == 'GET':
-        all_posts = [p for p in posts if p['type'] == 'post']
-        return render_template('upload.html', user=current_user, guest=is_guest, posts=all_posts)
+        return render_template('upload.html', user=current_user, guest=is_guest)
 
+    # 🛑 If guest tries to upload → show warning page
     if is_guest:
-        flash("Guest users cannot upload posts. Please sign up!")
-        return redirect(url_for('upload'))
+        return render_template('guest_warning.html', user=current_user)
 
+    # 🟢 Normal upload for logged-in users
     file = request.files.get('file')
     caption = request.form.get('caption', '')
 
@@ -169,19 +169,29 @@ def upload():
     flash('Post uploaded successfully!')
     return redirect(url_for('index'))
 
-@app.route('/upload_story', methods=['POST'])
+
+@app.route('/upload_story', methods=['GET', 'POST'])
 def upload_story():
     if 'user' not in session:
         return redirect(url_for('login'))
 
-    if users[session['user']].get('guest'):
-        flash("Guest users cannot upload stories. Please sign up!")
-        return redirect(url_for('index'))
+    current_user = session['user']
+    is_guest = users[current_user].get('guest', False)
 
+    # If GET → show story upload page
+    if request.method == 'GET':
+        return render_template('story_upload.html', user=current_user, guest=is_guest)
+
+    # 🛑 If guest tries to upload story
+    if is_guest:
+        return render_template('guest_warning.html', user=current_user)
+
+    # 🟢 Normal story upload for logged-in users
     story_file = request.files.get('story')
+
     if not story_file or not allowed_file(story_file.filename):
         flash('Invalid or missing story file!')
-        return redirect(url_for('upload'))
+        return redirect(url_for('upload_story'))
 
     filename = secure_filename(story_file.filename)
     ext = filename.rsplit('.', 1)[1].lower()
@@ -189,10 +199,8 @@ def upload_story():
     save_path = os.path.join(UPLOAD_FOLDER, unique_name)
     story_file.save(save_path)
 
-    # append story with explicit type (and optional id)
     stories.append({
-        'id': str(uuid.uuid4()),
-        'user': session['user'],
+        'user': current_user,
         'filename': unique_name,
         'type': 'story'
     })
