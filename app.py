@@ -165,7 +165,7 @@ def logout():
         users.pop(u, None)
     flash("Logged out.")
     return redirect(url_for("login"))
-
+    
 @app.route("/index")
 @login_required
 def index():
@@ -401,3 +401,63 @@ if __name__ == "__main__":
     debug_mode = os.environ.get("FLASK_DEBUG", "0") in ("1", "true", "True")
     # In dev, host=127.0.0.1 is fine; change if you need external access.
     app.run(host="127.0.0.1", port=int(os.environ.get("PORT", 5000)), debug=debug_mode)
+
+
+from flask import Flask, render_template, request, redirect, session
+import sqlite3
+
+app = Flask(__name__)
+app.secret_key = "your_secret_key"
+
+def get_db():
+    conn = sqlite3.connect("harnect.db")
+    conn.row_factory = sqlite3.Row
+    return conn
+
+@app.route("/post", methods=["POST"])
+def post():
+    if "user" not in session:
+        return redirect("/login")
+
+    content = request.form["content"]
+
+    db = get_db()
+    db.execute("INSERT INTO posts (username, content) VALUES (?, ?)", 
+               (session["user"], content))
+    db.commit()
+
+    return redirect("/")
+
+import sqlite3
+
+conn = sqlite3.connect("harnect.db")
+conn.execute("""
+CREATE TABLE IF NOT EXISTS posts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT,
+    content TEXT
+);
+""")
+conn.close()
+
+
+@app.route("/post", methods=["POST"])
+def post():
+    if "user" not in session:
+        return redirect("/login")
+
+    content = request.form["content"]
+
+    db = get_db()
+    db.execute("INSERT INTO posts (username, content) VALUES (?, ?)", 
+               (session["user"], content))
+    db.commit()
+
+    return redirect("/")
+
+
+@app.route("/")
+def home():
+    db = get_db()
+    posts = db.execute("SELECT * FROM posts ORDER BY id DESC").fetchall()
+    return render_template("home.html", posts=posts)

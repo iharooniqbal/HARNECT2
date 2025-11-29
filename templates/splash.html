@@ -16,6 +16,8 @@
   <meta name="author" content="Abdullah Haroon">
 </head>
 <body class="splash-body">
+  <div class="fade">
+    <!-- your page content -->
   <div class="splash-container">
     <!-- Tech-inspired HARNECT Logo -->
     <img src="{{ url_for('static', filename='uploads/LOGO.png') }}" alt="HARNECT" class="splash-logo">
@@ -30,5 +32,6 @@
       window.location.href = "{{ url_for('login') }}";
     }, 3000);
   </script>
+</div>
 </body>
 </html>
