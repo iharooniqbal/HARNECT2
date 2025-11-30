@@ -445,4 +445,4 @@ def post():
 def home():
     db = get_db()
     posts = db.execute("SELECT * FROM posts ORDER BY id DESC").fetchall()
-    return render_template("home.html", posts=posts)
+    return render_template("index.html", posts=posts)
