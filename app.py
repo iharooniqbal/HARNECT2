@@ -1,4 +1,4 @@
-# app.py
+# app.py 
 import os
 import uuid
 import random
@@ -414,20 +414,6 @@ def get_db():
     conn.row_factory = sqlite3.Row
     return conn
 
-@app.route("/post", methods=["POST"])
-def post():
-    if "user" not in session:
-        return redirect("/login")
-
-    content = request.form["content"]
-
-    db = get_db()
-    db.execute("INSERT INTO posts (username, content) VALUES (?, ?)", 
-               (session["user"], content))
-    db.commit()
-
-    return redirect("/")
-
 import sqlite3
 
 conn = sqlite3.connect("harnect.db")
@@ -454,8 +440,7 @@ def post():
     db.commit()
 
     return redirect("/")
-
-
+    
 @app.route("/")
 def home():
     db = get_db()
