@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="google-site-verification" content="cSnW7dOUikbqlCQI3ZsrurK1Ogvi_82hURIYZcRe78g" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HARNECT - {{ profile_user }}'s Profile</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <meta name="theme-color" content="#0b5cff">
+
+  <!-- Optional for Apple icons -->
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+  <meta name="description" content="HARNECT is a social media-style web app to connect and share moments.">
+  <meta name="keywords" content="HARNECT, social media, Flask, Pakistan, photos, videos">
+  <meta name="author" content="Abdullah Haroon">
+</head>
+<body>
+  <div class="fade">
+    <!-- your page content -->
+<header class="top-nav">
+  <div class="logo">HARNECT</div>
+  <div class="page-title">{{ profile_user }}'s Profile</div>
+  <div class="theme-toggle" id="themeToggle">🌙</div>
+</header>
+
+<main class="content profile-page">
+  <div class="profile-info">
+    <img src="{{ url_for('static', filename='uploads/' + user_data.profile_pic) }}" alt="Profile Pic" class="profile-pic">
+    <h2>{{ profile_user }}</h2>
+    <p>{{ user_data.bio }}</p>
+
+    {% if user != profile_user %}
+      <button id="followBtn" onclick="toggleFollow('{{ profile_user }}', this)">
+        {% if user in user_data.followers %}
+          Unfollow
+        {% else %}
+          Follow
+        {% endif %}
+      </button>
+      <p id="followersCount">{{ user_data.followers|length }} followers</p>
+    {% endif %}
+
+    {% if user == profile_user %}
+      <form id="editProfileForm" action="{{ url_for('profile', username=profile_user) }}" method="POST" enctype="multipart/form-data">
+        <input type="text" name="username" placeholder="Username" value="{{ profile_user }}">
+        <input type="text" name="bio" placeholder="Bio" value="{{ user_data.bio }}">
+        <input type="file" name="profile_pic" accept="image/*">
+        <button type="submit">Update Profile</button>
+      </form>
+      <form action="{{ url_for('logout') }}">
+        <button type="submit">Logout</button>
+      </form>
+    {% endif %}
+  </div>
+
+  <h3>{{ profile_user }}'s Posts</h3>
+  <div class="profile-grid">
+    {% for post in posts %}
+      <div class="post" id="post-{{ post.filename }}">
+        {% if post.filename.endswith(('.mp4','.webm','.mov','.avi')) %}
+          <video controls width="100%">
+            <source src="{{ url_for('static', filename='uploads/' + post.filename) }}" type="video/mp4">
+          </video>
+        {% else %}
+          <img src="{{ url_for('static', filename='uploads/' + post.filename) }}" alt="{{ post.caption }}">
+        {% endif %}
+        <div class="post-actions">
+          <button onclick="likePost(event, '{{ post.filename }}', this)" class="like-btn {% if user in post.likes %}liked{% endif %}">
+            ❤️ {{ post.likes|length if post.likes else 0 }} Likes
+          </button>
+          <button onclick="toggleComment('{{ post.filename }}')">💬 Comment</button>
+          <button onclick="sharePost('{{ url_for('static', filename='uploads/' + post.filename) }}')">🔄 Share</button>
+          {% if user == profile_user %}
+            <button onclick="deletePost('{{ post.filename }}', 'post-{{ post.filename }}')">🗑️ Delete</button>
+          {% endif %}
+        </div>
+        <div class="comments" id="comments-{{ post.filename }}">
+          {% for c in post.comments %}
+            <p><strong>@{{ c.user }}:</strong> {{ c.text }}</p>
+          {% endfor %}
+          {% if user %}
+            <form class="comment-form" onsubmit="submitComment(event, '{{ post.filename }}')">
+              <input type="text" name="comment" placeholder="Add comment..." required>
+              <button type="submit">💬 Comment</button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</main>
+
+<nav class="bottom-nav">
+  <a href="{{ url_for('index') }}">🏠<span>Home</span></a>
+  <a href="{{ url_for('explore') }}">🔍<span>Explore</span></a>
+  <a href="{{ url_for('upload') }}" class="upload-btn">➕</a>
+  <a href="{{ url_for('feedback') }}">💬<span>Feedback</span></a>
+  <a href="{% if user %}{{ url_for('profile', username=user) }}{% else %}{{ url_for('login') }}{% endif %}">👤<span>Profile</span></a>
+</nav>
+
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+<script>
+// Delete Post via AJAX
+function deletePost(filename, postElementId) {
+  if (!confirm("Are you sure you want to delete this post?")) return;
+  fetch(`/delete_post/${filename}`, { method: 'POST' })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        const postDiv = document.getElementById(postElementId);
+        if (postDiv) postDiv.remove();
+      } else {
+        alert(data.error || "Could not delete post.");
+      }
+    })
+    .catch(err => console.error(err));
+}
+
+// Follow/Unfollow
+function toggleFollow(username, btn) {
+  fetch(`/follow/${username}`, { method: 'POST', headers: {'Content-Type':'application/json'} })
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) return alert(data.error);
+      btn.textContent = data.action === 'followed' ? 'Unfollow' : 'Follow';
+      const countEl = document.getElementById('followersCount');
+      if (countEl) countEl.textContent = `${data.followers_count} followers`;
+    })
+    .catch(err => console.error(err));
+}
+</script>
+</div>
+</body>
+</html>
