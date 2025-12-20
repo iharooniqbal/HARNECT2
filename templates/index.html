@@ -1,4 +1,4 @@
-<!doctype html> 
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -14,7 +14,8 @@
   <meta name="author" content="Abdullah Haroon">
 </head>
 <body>
-  <div class="fade">
+<div class="fade">
+
 <header class="top-nav">
   <div class="logo">HARNECT</div>
   <div class="page-title">Home</div>
@@ -23,7 +24,6 @@
 
 <!-- Stories Section --> 
 <div class="stories">
-  <!-- My Story -->
   {% if user %}
     {% set my_story = stories | selectattr('username', 'equalto', user) | list %}
     {% if my_story %}
@@ -32,10 +32,10 @@
           {% set file = my_story[-1].filename %}
           {% if file.endswith(('.mp4', '.webm', '.ogg', '.avi')) %}
             <video class="story-video" muted>
-              <source src="{{ url_for('static', filename='uploads/' + file) }}" type="video/mp4">
+              <source src="{{ url_for('uploaded_file', filename=file) }}" type="video/mp4">
             </video>
           {% else %}
-            <img src="{{ url_for('static', filename='uploads/' + file) }}" alt="My Story">
+            <img src="{{ url_for('uploaded_file', filename=file) }}" alt="My Story">
           {% endif %}
         </div>
         {% if not file.endswith(('.mp4', '.webm', '.ogg', '.avi')) %}
@@ -45,7 +45,6 @@
     {% endif %}
   {% endif %}
 
-  <!-- Other Users' Stories -->
   {% set shown_users = [] %}
   {% for story in stories %}
     {% if story.username != user and story.username not in shown_users %}
@@ -55,10 +54,10 @@
           {% set file = story.filename %}
           {% if file.endswith(('.mp4', '.webm', '.ogg', '.avi')) %}
             <video class="story-video" muted>
-              <source src="{{ url_for('static', filename='uploads/' + file) }}" type="video/mp4">
+              <source src="{{ url_for('uploaded_file', filename=file) }}" type="video/mp4">
             </video>
           {% else %}
-            <img src="{{ url_for('static', filename='uploads/' + file) }}" alt="@{{ story.username }} Story">
+            <img src="{{ url_for('uploaded_file', filename=file) }}" alt="@{{ story.username }} Story">
           {% endif %}
         </div>
       </div>
@@ -71,11 +70,11 @@
     <div class="post" id="post-{{ post.id }}">
       {% if post.filename.endswith(('.mp4','.webm','.ogg','.avi')) %}
         <video controls>
-          <source src="{{ url_for('static', filename='uploads/' + post.filename) }}" type="video/mp4">
+          <source src="{{ url_for('uploaded_file', filename=post.filename) }}" type="video/mp4">
           Your browser does not support the video.
         </video>
       {% else %}
-        <img src="{{ url_for('static', filename='uploads/' + post.filename) }}" alt="{{ post.caption }}">
+        <img src="{{ url_for('uploaded_file', filename=post.filename) }}" alt="{{ post.caption }}">
       {% endif %}
 
       <div class="post-info">
@@ -93,7 +92,7 @@
           <button type="submit">💬 Comment</button>
         </form>
 
-        <button class="share-btn" onclick="sharePost('{{ url_for('static', filename='uploads/' + post.filename) }}')">
+        <button class="share-btn" onclick="sharePost('{{ url_for('uploaded_file', filename=post.filename) }}')">
           🔄 Share
         </button>
 
@@ -119,7 +118,29 @@
   <a href="{% if user %}{{ url_for('profile', username=user) }}{% else %}{{ url_for('login') }}{% endif %}">👤<span>Profile</span></a>
 </nav>
 
+<!-- Pass stories data to JS -->
+<script id="storiesData" type="application/json">
+[
+{% for s in stories %}
+  {
+    "id": {{ s.id }},
+    "username": "{{ s.username }}",
+    "url": "{{ url_for('uploaded_file', filename=s.filename) }}",
+    "type": "{{ s.type }}"
+  }{% if not loop.last %},{% endif %}
+{% endfor %}
+]
+</script>
+
 <script src="{{ url_for('static', filename='script.js') }}"></script>
+<!-- Story Modal -->
+<div id="storyModal" class="story-modal" style="display:none;">
+  <span class="close" onclick="closeStoryModal()">&times;</span>
+<div class="story-progress">
+  <div id="storyProgressBar"></div>
 </div>
+
+<div id="storyContent" class="story-click-zone"></div>
+
 </body>
 </html>
