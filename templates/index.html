@@ -1,25 +1,20 @@
-<!doctype html>
+<!doctype html> 
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="google-site-verification" content="cSnW7dOUikbqlCQI3ZsrurK1Ogvi_82hURIYZcRe78g" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>HARNECT — Feed</title>
 
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
   <meta name="theme-color" content="#0b5cff">
-
-  <!-- Optional for Apple icons -->
   <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
-
   <meta name="description" content="HARNECT is a social media-style web app to connect and share moments.">
   <meta name="keywords" content="HARNECT, social media, Flask, Pakistan, photos, videos">
   <meta name="author" content="Abdullah Haroon">
 </head>
 <body>
   <div class="fade">
-    <!-- your page content -->
 <header class="top-nav">
   <div class="logo">HARNECT</div>
   <div class="page-title">Home</div>
@@ -30,11 +25,11 @@
 <div class="stories">
   <!-- My Story -->
   {% if user %}
-    {% set my_story = stories | selectattr('user', 'equalto', user) | list %}
+    {% set my_story = stories | selectattr('username', 'equalto', user) | list %}
     {% if my_story %}
       <div class="story" onclick="openStories('{{ user }}')">
         <div class="story-circle">
-          {% set file = my_story[-1].filename %} <!-- latest story -->
+          {% set file = my_story[-1].filename %}
           {% if file.endswith(('.mp4', '.webm', '.ogg', '.avi')) %}
             <video class="story-video" muted>
               <source src="{{ url_for('static', filename='uploads/' + file) }}" type="video/mp4">
@@ -53,9 +48,9 @@
   <!-- Other Users' Stories -->
   {% set shown_users = [] %}
   {% for story in stories %}
-    {% if story.user != user and story.user not in shown_users %}
-      {% set _ = shown_users.append(story.user) %}
-      <div class="story" onclick="openStories('{{ story.user }}')">
+    {% if story.username != user and story.username not in shown_users %}
+      {% set _ = shown_users.append(story.username) %}
+      <div class="story" onclick="openStories('{{ story.username }}')">
         <div class="story-circle">
           {% set file = story.filename %}
           {% if file.endswith(('.mp4', '.webm', '.ogg', '.avi')) %}
@@ -63,7 +58,7 @@
               <source src="{{ url_for('static', filename='uploads/' + file) }}" type="video/mp4">
             </video>
           {% else %}
-            <img src="{{ url_for('static', filename='uploads/' + file) }}" alt="@{{ story.user }} Story">
+            <img src="{{ url_for('static', filename='uploads/' + file) }}" alt="@{{ story.username }} Story">
           {% endif %}
         </div>
       </div>
@@ -71,10 +66,9 @@
   {% endfor %}
 </div>
 
-
 <main class="content feed">
   {% for post in posts %}
-    <div class="post" id="post-{{ post.filename }}">
+    <div class="post" id="post-{{ post.id }}">
       {% if post.filename.endswith(('.mp4','.webm','.ogg','.avi')) %}
         <video controls>
           <source src="{{ url_for('static', filename='uploads/' + post.filename) }}" type="video/mp4">
@@ -85,16 +79,16 @@
       {% endif %}
 
       <div class="post-info">
-        <p><strong>@{{ post.user }}</strong></p>
+        <p><strong>@{{ post.username }}</strong></p>
         <p>{{ post.caption }}</p>
       </div>
 
       <div class="post-actions">
-        <button class="like-btn {% if user in post.likes %}liked{% endif %}" onclick="likePost(event, '{{ post.filename }}', this)">
-          ❤️ {{ post.likes|length if post.likes else 0 }} Likes
+        <button class="like-btn" onclick="likePost(event, {{ post.id }}, this)">
+          ❤️ {{ post.likes | length if post.likes else 0 }} Likes
         </button>
 
-        <form class="comment-form" onsubmit="submitComment(event, '{{ post.filename }}')">
+        <form class="comment-form" onsubmit="submitComment(event, {{ post.id }})">
           <input type="text" name="comment" placeholder="Add comment..." required>
           <button type="submit">💬 Comment</button>
         </form>
@@ -103,14 +97,14 @@
           🔄 Share
         </button>
 
-        {% if user == post.user %}
-          <button onclick="deletePost('{{ post.filename }}', 'post-{{ post.filename }}')">🗑️ Delete</button>
+        {% if user == post.username %}
+          <button onclick="deletePost({{ post.id }}, 'post-{{ post.id }}')">🗑️ Delete</button>
         {% endif %}
       </div>
 
-      <div class="comments" id="comments-{{ post.filename }}">
+      <div class="comments" id="comments-{{ post.id }}">
         {% for c in post.comments %}
-          <p><strong>@{{ c.user }}:</strong> {{ c.text }}</p>
+          <p><strong>@{{ c.username }}:</strong> {{ c.text }}</p>
         {% endfor %}
       </div>
     </div>
@@ -118,64 +112,12 @@
 </main>
 
 <nav class="bottom-nav">
-  <a href="{{ url_for('home') }}" class="active">🏠<span>Home</span></a>
+  <a href="{{ url_for('index') }}" class="active">🏠<span>Home</span></a>
   <a href="{{ url_for('explore') }}">🔍<span>Explore</span></a>
   <a href="{{ url_for('upload') }}" class="upload-btn">➕</a>
   <a href="{{ url_for('feedback') }}">💬<span>Feedback</span></a>
   <a href="{% if user %}{{ url_for('profile', username=user) }}{% else %}{{ url_for('login') }}{% endif %}">👤<span>Profile</span></a>
 </nav>
-
-<div id="storyModal" class="story-modal" onclick="closeStory()">
-  <div class="story-content" onclick="event.stopPropagation()">
-    <h3 id="storyUser"></h3>
-    <div id="storyMediaContainer" class="story-media"></div>
-
-    <div class="story-controls">
-      <button onclick="prevStory()">⏮ Back</button>
-      <button onclick="nextStory()">Next ⏭</button>
-      <button id="deleteStoryBtn" onclick="deleteStory()" style="display:none;">🗑 Delete</button>
-    </div>
-
-    <div class="story-progress">
-      <div id="progressBar"></div>
-    </div>
-  </div>
-</div>
-
-<script id="storiesData" type="application/json">
-  {{ stories | tojson }}
-</script>
-
-
-<script>
-// Register service worker
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('{{ url_for("static", filename="service-worker.js") }}')
-    .then(() => console.log('Service Worker registered'))
-    .catch((err) => console.log('Service Worker registration failed:', err));
-}
-
-// Optional: show simple "Add to Home Screen" behavior
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  // You can show a custom install button:
-  // document.getElementById('installBtn').style.display = 'block';
-});
-
-// Example: a simple install function (call from a button)
-function installApp() {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then((choice) => {
-      deferredPrompt = null;
-    });
-  } else {
-    alert('Open site in browser menu and use "Add to Home screen"');
-  }
-}
-</script>
 
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 </div>

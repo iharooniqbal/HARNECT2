@@ -2,22 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="google-site-verification" content="cSnW7dOUikbqlCQI3ZsrurK1Ogvi_82hURIYZcRe78g" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>HARNECT - Feedback</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
   <meta name="theme-color" content="#0b5cff">
-
-  <!-- Optional for Apple icons -->
   <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
   <meta name="description" content="HARNECT is a social media-style web app to connect and share moments.">
   <meta name="keywords" content="HARNECT, social media, Flask, Pakistan, photos, videos">
   <meta name="author" content="Abdullah Haroon">
 </head>
 <body>
-  <div class="fade">
-    <!-- your page content -->
+<div class="fade">
 <header class="top-nav">
    <div class="logo"><span class="logo-blue">HAR</span><span class="logo-brown">NECT</span></div>
   <div class="page-title">Feedback</div>
@@ -33,23 +29,26 @@
     <button type="submit">Submit Feedback</button>
   </form>
 
-  <div class="feedback-list">
-    {% for fb in feedbacks %}
-      <div class="feedback-item">
-        <strong>{{ fb.name }}</strong>
-        <p>{{ fb.message }}</p>
-      </div>
-    {% endfor %}
+  <div id="feedbackList" class="feedback-list">
+    {% if feedbacks %}
+      {% for fb in feedbacks %}
+        <div class="feedback-item">
+          <strong>{{ fb.name }}</strong>
+          <p>{{ fb.message }}</p>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>No feedback yet. Be the first to give feedback!</p>
+    {% endif %}
   </div>
 </main>
-
 
 <nav class="bottom-nav">
   <a href="{{ url_for('index') }}">🏠<span>Home</span></a>
   <a href="{{ url_for('explore') }}">🔍<span>Explore</span></a>
   <a href="{{ url_for('upload') }}" class="upload-btn">➕</a>
   <a href="{{ url_for('feedback') }}" class="active">💬<span>Feedback</span></a>
-  <a href="{{ url_for('profile', username=user) }}">👤<span>Profile</span></a>
+  <a href="{% if user %}{{ url_for('profile', username=user) }}{% else %}{{ url_for('login') }}{% endif %}">👤<span>Profile</span></a>
 </nav>
 
 <script>
@@ -80,7 +79,7 @@ feedbackForm.addEventListener('submit', function(e){
     feedbacks.forEach(f => {
       const div = document.createElement('div');
       div.className = 'feedback-item';
-      div.innerHTML = `<p><strong>${f.name}:</strong> ${f.message}</p>`;
+      div.innerHTML = `<strong>${f.name}</strong><p>${f.message}</p>`;
       feedbackList.appendChild(div);
     });
     feedbackForm.reset();
@@ -88,6 +87,7 @@ feedbackForm.addEventListener('submit', function(e){
   .catch(err => console.error(err));
 });
 </script>
+
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 </div>
 </body>
