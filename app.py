@@ -22,7 +22,7 @@ from functools import wraps
 from datetime import datetime
 from flask import (
     Flask, render_template, request, redirect, url_for,
-    session, flash, g, send_from_directory
+    session, flash, jsonify, g, send_from_directory
 )
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -387,16 +387,32 @@ def follow_user(username):
 @login_required
 def feedback():
     if request.method == "POST":
-        name = session.get("user")
-        msg = request.form.get("message", "").strip()
-        if msg:
+        if request.is_json:
+            data = request.get_json()
+            name = data.get("name") or session.get("user") or "Anonymous"
+            msg = data.get("message", "").strip()
+            if not msg:
+                return jsonify([])
+
             db = get_db()
-            db.execute("INSERT INTO feedback (name, message, created_at) VALUES (?, ?, ?)",
-                       (name, msg, datetime.utcnow().isoformat()))
+            db.execute(
+                "INSERT INTO feedback (name, message, created_at) VALUES (?, ?, ?)",
+                (name, msg, datetime.utcnow().isoformat())
+            )
             db.commit()
-            flash("Feedback sent!")
-        return redirect(url_for("index"))
-    return render_template("feedback.html", user=session.get("user"))
+
+            # Return updated feedback list
+            feedbacks = db.execute("SELECT name, message FROM feedback ORDER BY created_at DESC").fetchall()
+            feedback_list = [{"name": f["name"], "message": f["message"]} for f in feedbacks]
+            return jsonify(feedback_list)
+        else:
+            # fallback for normal form submission
+            return redirect(url_for("feedback"))
+
+    # GET request
+    db = get_db()
+    feedbacks = db.execute("SELECT name, message FROM feedback ORDER BY created_at DESC").fetchall()
+    return render_template("feedback.html", feedbacks=feedbacks, user=session.get("user"))
 
 @app.errorhandler(413)
 def too_large(e):
