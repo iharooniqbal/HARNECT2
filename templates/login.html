@@ -1,45 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+  <!-- ================= META & SEO ================= -->
   <meta charset="UTF-8">
   <meta name="google-site-verification" content="cSnW7dOUikbqlCQI3ZsrurK1Ogvi_82hURIYZcRe78g" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HARNECT - Login</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
   <meta name="theme-color" content="#0b5cff">
-
-  <!-- Optional for Apple icons -->
-  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
   <meta name="description" content="HARNECT is a social media-style web app to connect and share moments.">
   <meta name="keywords" content="HARNECT, social media, Flask, Pakistan, photos, videos">
   <meta name="author" content="Abdullah Haroon">
+
+  <!-- ================= TITLE ================= -->
+  <title>HARNECT - Login</title>
+
+  <!-- ================= STYLES & PWA ================= -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+
 </head>
 <body>
-  <div class="fade">
-    <!-- your page content -->
-<div class="auth-container modern">
-  <div class="auth-box modern">
-    <h1 class="logo">HARNECT</h1>
-    <p class="subtitle">Log in to your account</p>
 
-    {% if error %}
-      <p class="error">{{ error }}</p>
-    {% endif %}
+<!-- ================= PAGE FADE WRAPPER ================= -->
+<div class="fade">
 
-    <form method="POST" class="modern-form">
-      <input type="text" name="username" placeholder="Username" required>
-      <input type="password" name="password" placeholder="Password" required>
-      <button type="submit" class="btn-primary">Log In</button>
-    </form>
-    <a href="{{ url_for('guest_login') }}" class="guest-btn">Continue as Guest</a>
+  <!-- ================= AUTH CONTAINER ================= -->
+  <div class="auth-container modern">
 
-    <p class="text-center">
-      Don't have an account? <a href="{{ url_for('signup') }}">Sign Up</a>
-    </p>
+    <!-- ================= AUTH BOX ================= -->
+    <div class="auth-box modern">
+
+      <!-- ================= LOGO & TITLE ================= -->
+      <h1 class="logo">HARNECT</h1>
+      <p class="subtitle">Log in to your account</p>
+
+      <!-- ================= ERROR MESSAGE ================= -->
+      {% if error %}
+        <p class="error">{{ error }}</p>
+      {% endif %}
+
+      <!-- ================= LOGIN FORM ================= -->
+      <form method="POST" class="modern-form">
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit" class="btn-primary">Log In</button>
+      </form>
+
+      <!-- ================= GUEST LOGIN ================= -->
+      <a href="{{ url_for('guest_login') }}" class="guest-btn">Continue as Guest</a>
+
+      <!-- ================= SIGNUP LINK ================= -->
+      <p class="text-center">
+        Don't have an account? <a href="{{ url_for('signup') }}">Sign Up</a>
+      </p>
+
+    </div>
   </div>
-</div>
+
+  <!-- ================= SCRIPTS ================= -->
   <script src="{{ url_for('static', filename='script.js') }}"></script>
+
 </div>
 </body>
 </html>

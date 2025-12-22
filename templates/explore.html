@@ -1,75 +1,103 @@
 <!doctype html>
 <html lang="en">
 <head>
+
+  <!-- ================= META & SEO ================= -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>HARNECT - Explore</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
   <meta name="theme-color" content="#0b5cff">
-  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
   <meta name="description" content="HARNECT is a social media-style web app to connect and share moments.">
   <meta name="keywords" content="HARNECT, social media, Flask, Pakistan, photos, videos">
   <meta name="author" content="Abdullah Haroon">
+
+  <!-- ================= TITLE ================= -->
+  <title>HARNECT - Explore</title>
+
+  <!-- ================= STYLES & PWA ================= -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+
 </head>
 <body>
+
 <div class="fade">
-<header class="top-nav">
-   <div class="logo"><span class="logo-blue">HAR</span><span class="logo-brown">NECT</span></div>
-  <div class="page-title">Explore</div>
-  <div class="theme-toggle" id="themeToggle">🌙</div>
-</header>
 
-<main class="content explore-page">
-  <h2>Explore</h2>
+  <!-- ================= TOP NAVBAR ================= -->
+  <header class="top-nav">
+    <div class="logo">
+      <span class="logo-blue">HAR</span><span class="logo-brown">NECT</span>
+    </div>
+    <div class="page-title">Explore</div>
+    <div class="theme-toggle" id="themeToggle">🌙</div>
+  </header>
 
-  <!-- Search Bar -->
-  <form action="{{ url_for('explore') }}" method="GET" class="search-form">
-    <input type="text" name="query" placeholder="Search users or posts..." value="{{ query }}">
-    <button type="submit">🔍</button>
-  </form>
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="content explore-page">
 
-  <!-- Results Grid -->
-  <div class="explore-results">
-    {% if results %}
-      {% for item in results %}
-        {% if item.type == 'user' %}
-          <a href="{{ url_for('profile', username=item.username) }}" class="explore-item user-item">
-            <div class="user-box">@{{ item.username }}</div>
-          </a>
-        {% elif item.type == 'post' %}
-          <div class="explore-item post-item">
-            <a href="{{ url_for('profile', username=item.user) }}"><strong>@{{ item.user }}</strong></a>
-            
-            {% if item.filename.endswith(('.mp4','.webm','.ogg','.avi')) %}
-              <video controls width="100%">
-                <source src="{{ url_for('static', filename='uploads/' + item.filename) }}" type="video/mp4">
-                Your browser does not support the video tag.
-              </video>
-            {% else %}
-              <img src="{{ url_for('static', filename='uploads/' + item.filename) }}" alt="{{ item.caption }}">
-            {% endif %}
-            
-            <p>{{ item.caption }}</p>
-          </div>
-        {% endif %}
-      {% endfor %}
-    {% else %}
-      <p>No results found.</p>
-    {% endif %}
-  </div>
-</main>
+    <!-- ================= PAGE HEADING ================= -->
+    <h2>Explore</h2>
 
-<!-- Bottom Navigation -->
-<nav class="bottom-nav">
-  <a href="{{ url_for('index') }}">🏠<span>Home</span></a>
-  <a href="{{ url_for('explore') }}" class="active">🔍<span>Explore</span></a>
-  <a href="{{ url_for('upload') }}" class="upload-btn">➕</a>
-  <a href="{{ url_for('feedback') }}">💬<span>Feedback</span></a>
-  <a href="{% if user %}{{ url_for('profile', username=user) }}{% else %}{{ url_for('login') }}{% endif %}">👤<span>Profile</span></a>
-</nav>
+    <!-- ================= SEARCH FORM ================= -->
+    <form action="{{ url_for('explore') }}" method="GET" class="search-form">
+      <input type="text" name="query" placeholder="Search users or posts..." value="{{ query }}">
+      <button type="submit">🔍</button>
+    </form>
 
-<script src="{{ url_for('static', filename='script.js') }}"></script>
+    <!-- ================= RESULTS GRID ================= -->
+    <div class="explore-results">
+      {% if results %}
+        {% for item in results %}
+
+          <!-- ================= USER RESULT ================= -->
+          {% if item.type == 'user' %}
+            <a href="{{ url_for('profile', username=item.username) }}" class="explore-item user-item">
+              <div class="user-box">@{{ item.username }}</div>
+            </a>
+
+          <!-- ================= POST RESULT ================= -->
+          {% elif item.type == 'post' %}
+            <div class="explore-item post-item">
+              <a href="{{ url_for('profile', username=item.user) }}">
+                <strong>@{{ item.user }}</strong>
+              </a>
+
+              {% if item.filename.endswith(('.mp4','.webm','.ogg','.avi')) %}
+                <video controls width="100%">
+                  <source src="{{ url_for('static', filename='uploads/' + item.filename) }}" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+              {% else %}
+                <img src="{{ url_for('static', filename='uploads/' + item.filename) }}" alt="{{ item.caption }}">
+              {% endif %}
+
+              <p>{{ item.caption }}</p>
+            </div>
+          {% endif %}
+
+        {% endfor %}
+      {% else %}
+        <p>No results found.</p>
+      {% endif %}
+    </div>
+
+  </main>
+
+  <!-- ================= BOTTOM NAVIGATION ================= -->
+  <nav class="bottom-nav">
+    <a href="{{ url_for('index') }}">🏠<span>Home</span></a>
+    <a href="{{ url_for('explore') }}" class="active">🔍<span>Explore</span></a>
+    <a href="{{ url_for('upload') }}" class="upload-btn">➕</a>
+    <a href="{{ url_for('feedback') }}">💬<span>Feedback</span></a>
+    <a href="{% if user %}{{ url_for('profile', username=user) }}{% else %}{{ url_for('login') }}{% endif %}">
+      👤<span>Profile</span>
+    </a>
+  </nav>
+
+  <!-- ================= SCRIPTS ================= -->
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+
 </div>
+
 </body>
 </html>

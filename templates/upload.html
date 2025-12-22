@@ -4,54 +4,60 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>HARNECT - Upload</title>
+
+  <!-- ================= STYLES & PWA ================= -->
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-  <meta name="theme-color" content="#0b5cff">
   <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+  <meta name="theme-color" content="#0b5cff">
   <meta name="description" content="HARNECT is a social media-style web app to connect and share moments.">
   <meta name="keywords" content="HARNECT, social media, Flask, Pakistan, photos, videos">
   <meta name="author" content="Abdullah Haroon">
 </head>
 <body>
 <div class="fade">
-<header class="top-nav">
-  <div class="logo">HARNECT</div>
-  <div class="page-title">Upload</div>
-  <div class="theme-toggle" id="themeToggle">🌙</div>
-</header>
 
-<main class="upload-page">
-  <div class="upload-container">
+  <!-- ================= HEADER ================= -->
+  <header class="top-nav">
+    <div class="logo">HARNECT</div>
+    <div class="page-title">Upload</div>
+    <div class="theme-toggle" id="themeToggle">🌙</div>
+  </header>
 
-    <!-- Upload Post -->
-    <form class="upload-form" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
-      <h2>Upload Post</h2>
-      <input type="file" name="file" required>
-      <input type="text" name="caption" placeholder="Write a caption..." required>
-      <input type="hidden" name="type" value="post">
-      <button type="submit" class="blue-btn">Upload Post</button>
-    </form>
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="upload-page">
+    <div class="upload-container">
 
-    <!-- Upload Story -->
-    <form class="upload-form" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
-      <h2>Upload Story</h2>
-      <input type="file" name="file" required>
-      <input type="hidden" name="type" value="story">
-      <button type="submit" class="blue-btn">Upload Story</button>
-    </form>
+      <!-- Upload Post -->
+      <form class="upload-form" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+        <h2>Upload Post</h2>
+        <input type="file" name="file" required>
+        <input type="text" name="caption" placeholder="Write a caption..." required>
+        <input type="hidden" name="type" value="post">
+        <button type="submit" class="blue-btn">Upload Post</button>
+      </form>
 
-  </div>
-</main>
+      <!-- Upload Story -->
+      <form class="upload-form" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+        <h2>Upload Story</h2>
+        <input type="file" name="file" required>
+        <input type="hidden" name="type" value="story">
+        <button type="submit" class="blue-btn">Upload Story</button>
+      </form>
 
-<nav class="bottom-nav">
-  <a href="{{ url_for('index') }}">🏠<span>Home</span></a>
-  <a href="{{ url_for('explore') }}">🔍<span>Explore</span></a>
-  <a href="{{ url_for('upload') }}" class="upload-btn active">➕</a>
-  <a href="{{ url_for('feedback') }}">💬<span>Feedback</span></a>
-  <a href="{% if user %}{{ url_for('profile', username=user) }}{% else %}{{ url_for('login') }}{% endif %}">👤<span>Profile</span></a>
-</nav>
+    </div>
+  </main>
 
-<script src="{{ url_for('static', filename='script.js') }}"></script>
+  <!-- ================= BOTTOM NAVIGATION ================= -->
+  <nav class="bottom-nav">
+    <a href="{{ url_for('index') }}">🏠<span>Home</span></a>
+    <a href="{{ url_for('explore') }}">🔍<span>Explore</span></a>
+    <a href="{{ url_for('upload') }}" class="upload-btn active">➕</a>
+    <a href="{{ url_for('feedback') }}">💬<span>Feedback</span></a>
+    <a href="{% if user %}{{ url_for('profile', username=user) }}{% else %}{{ url_for('login') }}{% endif %}">👤<span>Profile</span></a>
+  </nav>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
 </div>
 </body>
 </html>

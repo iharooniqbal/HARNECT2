@@ -1,3 +1,4 @@
+# ================== INIT_DB.PY ==================
 import sqlite3
 
 conn = sqlite3.connect("harnect.db")

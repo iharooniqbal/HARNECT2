@@ -5,33 +5,34 @@
   <meta name="google-site-verification" content="cSnW7dOUikbqlCQI3ZsrurK1Ogvi_82hURIYZcRe78g" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HARNECT - Welcome</title>
+
+  <!-- ================= STYLES & PWA ================= -->
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-  <meta name="theme-color" content="#0b5cff">
-
-  <!-- Optional for Apple icons -->
   <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+  <meta name="theme-color" content="#0b5cff">
   <meta name="description" content="HARNECT is a social media-style web app to connect and share moments.">
   <meta name="keywords" content="HARNECT, social media, Flask, Pakistan, photos, videos">
   <meta name="author" content="Abdullah Haroon">
 </head>
 <body class="splash-body">
-  <div class="fade">
-    <!-- your page content -->
+<div class="fade">
+
+  <!-- ================= SPLASH SCREEN ================= -->
   <div class="splash-container">
-    <!-- Tech-inspired HARNECT Logo -->
     <img src="{{ url_for('static', filename='uploads/LOGO.png') }}" alt="HARNECT" class="splash-logo">
-    
     <h1 class="splash-title">Welcome to <span>HARNECT</span></h1>
     <p class="splash-subtitle">Connect. Share. Inspire.</p>
   </div>
 
+  <!-- ================= REDIRECT SCRIPT ================= -->
   <script>
-    // Redirect to login after 3 seconds
+    // Redirect to login page after 3 seconds
     setTimeout(() => {
       window.location.href = "{{ url_for('login') }}";
     }, 3000);
   </script>
+
 </div>
 </body>
 </html>

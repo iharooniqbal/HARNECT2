@@ -1,124 +1,152 @@
 <!doctype html>
 <html lang="en">
 <head>
+
+  <!-- ================= META & SEO ================= -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>HARNECT — Feed</title>
-
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
   <meta name="theme-color" content="#0b5cff">
-  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
   <meta name="description" content="HARNECT is a social media-style web app to connect and share moments.">
   <meta name="keywords" content="HARNECT, social media, Flask, Pakistan, photos, videos">
   <meta name="author" content="Abdullah Haroon">
+
+  <!-- ================= TITLE ================= -->
+  <title>HARNECT — Feed</title>
+
+  <!-- ================= STYLES & PWA ================= -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+
 </head>
 <body>
+
+<!-- ================= PAGE FADE WRAPPER ================= -->
 <div class="fade">
 
-<header class="top-nav">
-  <div class="logo">HARNECT</div>
-  <div class="page-title">Home</div>
-  <div class="theme-toggle" id="themeToggle">🌙</div>
-</header>
+  <!-- ================= TOP NAVBAR ================= -->
+  <header class="top-nav">
+    <div class="logo">HARNECT</div>
+    <div class="page-title">Home</div>
+    <div class="theme-toggle" id="themeToggle">🌙</div>
+  </header>
 
-<!-- Stories Section --> 
-<div class="stories">
-  {% if user %}
-    {% set my_story = stories | selectattr('username', 'equalto', user) | list %}
-    {% if my_story %}
-      <div class="story" onclick="openStories('{{ user }}')">
-        <div class="story-circle">
-          {% set file = my_story[-1].filename %}
-          {% if file.endswith(('.mp4', '.webm', '.ogg', '.avi')) %}
-            <video class="story-video" muted>
-              <source src="{{ url_for('uploaded_file', filename=file) }}" type="video/mp4">
-            </video>
-          {% else %}
-            <img src="{{ url_for('uploaded_file', filename=file) }}" alt="My Story">
+  <!-- ================= STORIES SECTION ================= -->
+  <div class="stories">
+
+    <!-- ================= USER STORY ================= -->
+    {% if user %}
+      {% set my_story = stories | selectattr('username', 'equalto', user) | list %}
+      {% if my_story %}
+        <div class="story" onclick="openStories('{{ user }}')">
+          <div class="story-circle">
+            {% set file = my_story[-1].filename %}
+            {% if file.endswith(('.mp4', '.webm', '.ogg', '.avi')) %}
+              <video class="story-video" muted>
+                <source src="{{ url_for('uploaded_file', filename=file) }}" type="video/mp4">
+              </video>
+            {% else %}
+              <img src="{{ url_for('uploaded_file', filename=file) }}" alt="My Story">
+            {% endif %}
+          </div>
+          {% if not file.endswith(('.mp4', '.webm', '.ogg', '.avi')) %}
+            <p>You</p>
           {% endif %}
         </div>
-        {% if not file.endswith(('.mp4', '.webm', '.ogg', '.avi')) %}
-          <p>You</p>
+      {% endif %}
+    {% endif %}
+
+    <!-- ================= OTHER USERS STORIES ================= -->
+    {% set shown_users = [] %}
+    {% for story in stories %}
+      {% if story.username != user and story.username not in shown_users %}
+        {% set _ = shown_users.append(story.username) %}
+        <div class="story" onclick="openStories('{{ story.username }}')">
+          <div class="story-circle">
+            {% set file = story.filename %}
+            {% if file.endswith(('.mp4', '.webm', '.ogg', '.avi')) %}
+              <video class="story-video" muted>
+                <source src="{{ url_for('uploaded_file', filename=file) }}" type="video/mp4">
+              </video>
+            {% else %}
+              <img src="{{ url_for('uploaded_file', filename=file) }}" alt="@{{ story.username }} Story">
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+
+  </div>
+
+  <!-- ================= FEED CONTENT ================= -->
+  <main class="content feed">
+
+    <!-- ================= POSTS LOOP ================= -->
+    {% for post in posts %}
+      <div class="post" id="post-{{ post.id }}">
+
+        <!-- ================= POST MEDIA ================= -->
+        {% if post.filename.endswith(('.mp4','.webm','.ogg','.avi')) %}
+          <video controls>
+            <source src="{{ url_for('uploaded_file', filename=post.filename) }}" type="video/mp4">
+            Your browser does not support the video.
+          </video>
+        {% else %}
+          <img src="{{ url_for('uploaded_file', filename=post.filename) }}" alt="{{ post.caption }}">
         {% endif %}
-      </div>
-    {% endif %}
-  {% endif %}
 
-  {% set shown_users = [] %}
-  {% for story in stories %}
-    {% if story.username != user and story.username not in shown_users %}
-      {% set _ = shown_users.append(story.username) %}
-      <div class="story" onclick="openStories('{{ story.username }}')">
-        <div class="story-circle">
-          {% set file = story.filename %}
-          {% if file.endswith(('.mp4', '.webm', '.ogg', '.avi')) %}
-            <video class="story-video" muted>
-              <source src="{{ url_for('uploaded_file', filename=file) }}" type="video/mp4">
-            </video>
-          {% else %}
-            <img src="{{ url_for('uploaded_file', filename=file) }}" alt="@{{ story.username }} Story">
-          {% endif %}
+        <!-- ================= POST INFO ================= -->
+        <div class="post-info">
+          <p><strong>@{{ post.username }}</strong></p>
+          <p>{{ post.caption }}</p>
         </div>
+
+        <!-- ================= POST ACTIONS ================= -->
+        <div class="post-actions">
+
+          <button class="like-btn" onclick="likePost(event, {{ post.id }}, this)">
+            ❤️ {{ post.likes | length if post.likes else 0 }} Likes
+          </button>
+
+          <form class="comment-form" onsubmit="submitComment(event, {{ post.id }})">
+            <input type="text" name="comment" placeholder="Add comment..." required>
+            <button type="submit">💬 Comment</button>
+          </form>
+
+          <button class="share-btn" onclick="sharePost('{{ url_for('uploaded_file', filename=post.filename) }}')">
+            🔄 Share
+          </button>
+
+          {% if user == post.username %}
+            <button onclick="deletePost({{ post.id }}, 'post-{{ post.id }}')">🗑️ Delete</button>
+          {% endif %}
+
+        </div>
+
+        <!-- ================= COMMENTS ================= -->
+        <div class="comments" id="comments-{{ post.id }}">
+          {% for c in post.comments %}
+            <p><strong>@{{ c.username }}:</strong> {{ c.text }}</p>
+          {% endfor %}
+        </div>
+
       </div>
-    {% endif %}
-  {% endfor %}
+    {% endfor %}
+
+  </main>
+
+  <!-- ================= BOTTOM NAVIGATION ================= -->
+  <nav class="bottom-nav">
+    <a href="{{ url_for('index') }}" class="active">🏠<span>Home</span></a>
+    <a href="{{ url_for('explore') }}">🔍<span>Explore</span></a>
+    <a href="{{ url_for('upload') }}" class="upload-btn">➕</a>
+    <a href="{{ url_for('feedback') }}">💬<span>Feedback</span></a>
+    <a href="{% if user %}{{ url_for('profile', username=user) }}{% else %}{{ url_for('login') }}{% endif %}">👤<span>Profile</span></a>
+  </nav>
+
 </div>
 
-<main class="content feed">
-  {% for post in posts %}
-    <div class="post" id="post-{{ post.id }}">
-      {% if post.filename.endswith(('.mp4','.webm','.ogg','.avi')) %}
-        <video controls>
-          <source src="{{ url_for('uploaded_file', filename=post.filename) }}" type="video/mp4">
-          Your browser does not support the video.
-        </video>
-      {% else %}
-        <img src="{{ url_for('uploaded_file', filename=post.filename) }}" alt="{{ post.caption }}">
-      {% endif %}
-
-      <div class="post-info">
-        <p><strong>@{{ post.username }}</strong></p>
-        <p>{{ post.caption }}</p>
-      </div>
-
-      <div class="post-actions">
-        <button class="like-btn" onclick="likePost(event, {{ post.id }}, this)">
-          ❤️ {{ post.likes | length if post.likes else 0 }} Likes
-        </button>
-
-        <form class="comment-form" onsubmit="submitComment(event, {{ post.id }})">
-          <input type="text" name="comment" placeholder="Add comment..." required>
-          <button type="submit">💬 Comment</button>
-        </form>
-
-        <button class="share-btn" onclick="sharePost('{{ url_for('uploaded_file', filename=post.filename) }}')">
-          🔄 Share
-        </button>
-
-        {% if user == post.username %}
-          <button onclick="deletePost({{ post.id }}, 'post-{{ post.id }}')">🗑️ Delete</button>
-        {% endif %}
-      </div>
-
-      <div class="comments" id="comments-{{ post.id }}">
-        {% for c in post.comments %}
-          <p><strong>@{{ c.username }}:</strong> {{ c.text }}</p>
-        {% endfor %}
-      </div>
-    </div>
-  {% endfor %}
-</main>
-
-<nav class="bottom-nav">
-  <a href="{{ url_for('index') }}" class="active">🏠<span>Home</span></a>
-  <a href="{{ url_for('explore') }}">🔍<span>Explore</span></a>
-  <a href="{{ url_for('upload') }}" class="upload-btn">➕</a>
-  <a href="{{ url_for('feedback') }}">💬<span>Feedback</span></a>
-  <a href="{% if user %}{{ url_for('profile', username=user) }}{% else %}{{ url_for('login') }}{% endif %}">👤<span>Profile</span></a>
-</nav>
-
-<!-- Pass stories data to JS -->
+<!-- ================= STORIES DATA ================= -->
 <script id="storiesData" type="application/json">
 [
 {% for s in stories %}
@@ -132,15 +160,19 @@
 ]
 </script>
 
+<!-- ================= SCRIPTS ================= -->
 <script src="{{ url_for('static', filename='script.js') }}"></script>
-<!-- Story Modal -->
+
+<!-- ================= STORY MODAL ================= -->
 <div id="storyModal" class="story-modal" style="display:none;">
   <span class="close" onclick="closeStoryModal()">&times;</span>
-<div class="story-progress">
-  <div id="storyProgressBar"></div>
-</div>
 
-<div id="storyContent" class="story-click-zone"></div>
+  <div class="story-progress">
+    <div id="storyProgressBar"></div>
+  </div>
+
+  <div id="storyContent" class="story-click-zone"></div>
+</div>
 
 </body>
 </html>

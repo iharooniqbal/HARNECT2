@@ -1,3 +1,4 @@
+# ================== APP.PY ==================
 """
 Complete single-file Instagram-like Flask app (HARNECT) using SQLite.
 Features:

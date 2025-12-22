@@ -1,4 +1,4 @@
-// /================= THEME TOGGLE =================
+// ================= THEME TOGGLE =================
 document.addEventListener('DOMContentLoaded', () => {
   const themeToggle = document.getElementById('themeToggle');
   const body = document.body;
@@ -22,18 +22,20 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// ================= STORY VIEWER (INSTAGRAM FULL) =================
 
+// ================= STORY DATA =================
 const allStories = JSON.parse(
   document.getElementById("storiesData")?.textContent || "[]"
 );
 
+
+// ================= STORY STATE =================
 let currentStories = [];
 let currentIndex = 0;
 let progressInterval = null;
 
 
-// Open user stories
+// ================= OPEN STORIES =================
 function openStories(username) {
   currentStories = allStories.filter(s => s.username === username);
   currentIndex = 0;
@@ -45,7 +47,7 @@ function openStories(username) {
 }
 
 
-// Show ONE story
+// ================= SHOW STORY =================
 function showStory() {
   const content = document.getElementById('storyContent');
   const progressBar = document.getElementById('storyProgressBar');
@@ -87,7 +89,7 @@ function showStory() {
 }
 
 
-// Progress bar for images
+// ================= STORY PROGRESS BAR =================
 function startProgress() {
   const progressBar = document.getElementById('storyProgressBar');
   let width = 0;
@@ -100,11 +102,11 @@ function startProgress() {
       clearInterval(progressInterval);
       nextStory();
     }
-  }, 50); // ~5 seconds
+  }, 50);
 }
 
 
-// Tap controls (left / right)
+// ================= TAP CONTROLS =================
 function enableTapControls() {
   const content = document.getElementById('storyContent');
 
@@ -121,7 +123,7 @@ function enableTapControls() {
 }
 
 
-// Next story
+// ================= NEXT STORY =================
 function nextStory() {
   clearInterval(progressInterval);
   currentIndex++;
@@ -134,7 +136,7 @@ function nextStory() {
 }
 
 
-// Previous story
+// ================= PREVIOUS STORY =================
 function prevStory() {
   clearInterval(progressInterval);
   currentIndex--;
@@ -147,7 +149,7 @@ function prevStory() {
 }
 
 
-// Close modal
+// ================= CLOSE STORY MODAL =================
 function closeStoryModal() {
   clearInterval(progressInterval);
   document.getElementById('storyModal').style.display = 'none';

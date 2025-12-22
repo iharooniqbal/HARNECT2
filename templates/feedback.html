@@ -1,94 +1,119 @@
 <!doctype html>
 <html lang="en">
 <head>
+
+  <!-- ================= META & SEO ================= -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>HARNECT - Feedback</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
   <meta name="theme-color" content="#0b5cff">
-  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
   <meta name="description" content="HARNECT is a social media-style web app to connect and share moments.">
   <meta name="keywords" content="HARNECT, social media, Flask, Pakistan, photos, videos">
   <meta name="author" content="Abdullah Haroon">
+
+  <!-- ================= TITLE ================= -->
+  <title>HARNECT - Feedback</title>
+
+  <!-- ================= STYLES & PWA ================= -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+
 </head>
 <body>
+
 <div class="fade">
-<header class="top-nav">
-   <div class="logo"><span class="logo-blue">HAR</span><span class="logo-brown">NECT</span></div>
-  <div class="page-title">Feedback</div>
-  <div class="theme-toggle" id="themeToggle">🌙</div>
-</header>
 
-<main class="content feedback-page">
-  <h2>Feedback</h2>
+  <!-- ================= TOP NAVBAR ================= -->
+  <header class="top-nav">
+    <div class="logo">
+      <span class="logo-blue">HAR</span><span class="logo-brown">NECT</span>
+    </div>
+    <div class="page-title">Feedback</div>
+    <div class="theme-toggle" id="themeToggle">🌙</div>
+  </header>
 
-  <form id="feedbackForm">
-    <input type="text" name="name" placeholder="Your Name (optional)">
-    <textarea name="message" placeholder="Write your feedback..." required></textarea>
-    <button type="submit">Submit Feedback</button>
-  </form>
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="content feedback-page">
 
-  <div id="feedbackList" class="feedback-list">
-    {% if feedbacks %}
-      {% for fb in feedbacks %}
-        <div class="feedback-item">
-          <strong>{{ fb.name }}</strong>
-          <p>{{ fb.message }}</p>
-        </div>
-      {% endfor %}
-    {% else %}
-      <p>No feedback yet. Be the first to give feedback!</p>
-    {% endif %}
-  </div>
-</main>
+    <!-- ================= PAGE HEADING ================= -->
+    <h2>Feedback</h2>
 
-<nav class="bottom-nav">
-  <a href="{{ url_for('index') }}">🏠<span>Home</span></a>
-  <a href="{{ url_for('explore') }}">🔍<span>Explore</span></a>
-  <a href="{{ url_for('upload') }}" class="upload-btn">➕</a>
-  <a href="{{ url_for('feedback') }}" class="active">💬<span>Feedback</span></a>
-  <a href="{% if user %}{{ url_for('profile', username=user) }}{% else %}{{ url_for('login') }}{% endif %}">👤<span>Profile</span></a>
-</nav>
+    <!-- ================= FEEDBACK FORM ================= -->
+    <form id="feedbackForm">
+      <input type="text" name="name" placeholder="Your Name (optional)">
+      <textarea name="message" placeholder="Write your feedback..." required></textarea>
+      <button type="submit">Submit Feedback</button>
+    </form>
 
-<script>
-const feedbackForm = document.getElementById('feedbackForm');
-const feedbackList = document.getElementById('feedbackList');
+    <!-- ================= FEEDBACK LIST ================= -->
+    <div id="feedbackList" class="feedback-list">
+      {% if feedbacks %}
+        {% for fb in feedbacks %}
+          <div class="feedback-item">
+            <strong>{{ fb.name }}</strong>
+            <p>{{ fb.message }}</p>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p>No feedback yet. Be the first to give feedback!</p>
+      {% endif %}
+    </div>
 
-feedbackForm.addEventListener('submit', function(e){
-  e.preventDefault();
-  const formData = new FormData(feedbackForm);
-  const data = {
-    name: formData.get('name') || 'Anonymous',
-    message: formData.get('message') || ''
-  };
-  if (!data.message.trim()) return;
+  </main>
 
-  fetch("{{ url_for('feedback') }}", {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  })
-  .then(res => res.json())
-  .then(feedbacks => {
-    feedbackList.innerHTML = '';
-    if(feedbacks.length === 0){
-      feedbackList.innerHTML = '<p>No feedback yet. Be the first to give feedback!</p>';
-      return;
-    }
-    feedbacks.forEach(f => {
-      const div = document.createElement('div');
-      div.className = 'feedback-item';
-      div.innerHTML = `<strong>${f.name}</strong><p>${f.message}</p>`;
-      feedbackList.appendChild(div);
+  <!-- ================= BOTTOM NAVIGATION ================= -->
+  <nav class="bottom-nav">
+    <a href="{{ url_for('index') }}">🏠<span>Home</span></a>
+    <a href="{{ url_for('explore') }}">🔍<span>Explore</span></a>
+    <a href="{{ url_for('upload') }}" class="upload-btn">➕</a>
+    <a href="{{ url_for('feedback') }}" class="active">💬<span>Feedback</span></a>
+    <a href="{% if user %}{{ url_for('profile', username=user) }}{% else %}{{ url_for('login') }}{% endif %}">
+      👤<span>Profile</span>
+    </a>
+  </nav>
+
+  <!-- ================= FEEDBACK SCRIPT ================= -->
+  <script>
+    const feedbackForm = document.getElementById('feedbackForm');
+    const feedbackList = document.getElementById('feedbackList');
+
+    feedbackForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      const formData = new FormData(feedbackForm);
+      const data = {
+        name: formData.get('name') || 'Anonymous',
+        message: formData.get('message') || ''
+      };
+      if (!data.message.trim()) return;
+
+      fetch("{{ url_for('feedback') }}", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(feedbacks => {
+        feedbackList.innerHTML = '';
+        if(feedbacks.length === 0){
+          feedbackList.innerHTML = '<p>No feedback yet. Be the first to give feedback!</p>';
+          return;
+        }
+        feedbacks.forEach(f => {
+          const div = document.createElement('div');
+          div.className = 'feedback-item';
+          div.innerHTML = `<strong>${f.name}</strong><p>${f.message}</p>`;
+          feedbackList.appendChild(div);
+        });
+        feedbackForm.reset();
+      })
+      .catch(err => console.error(err));
     });
-    feedbackForm.reset();
-  })
-  .catch(err => console.error(err));
-});
-</script>
+  </script>
 
-<script src="{{ url_for('static', filename='script.js') }}"></script>
+  <!-- ================= GLOBAL SCRIPT ================= -->
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+
 </div>
+
 </body>
 </html>
