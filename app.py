@@ -328,21 +328,28 @@ def like_post(post_id):
     exists = db.execute("SELECT 1 FROM likes WHERE post_id=? AND username=?", (post_id, u)).fetchone()
     if exists:
         db.execute("DELETE FROM likes WHERE post_id=? AND username=?", (post_id, u))
+        liked = False
     else:
         db.execute("INSERT INTO likes (post_id, username, created_at) VALUES (?, ?, ?)", (post_id, u, datetime.utcnow().isoformat()))
+        liked = True
     db.commit()
-    return redirect(request.referrer or url_for("index"))
+
+    like_count = db.execute("SELECT COUNT(*) FROM likes WHERE post_id=?", (post_id,)).fetchone()[0]
+    return jsonify({'liked': liked, 'like_count': like_count})
 
 @app.route("/comment/<int:post_id>", methods=["POST"])
 @login_required
 def comment_post(post_id):
     text = request.form.get("comment", "").strip()
-    if text:
-        db = get_db()
-        db.execute("INSERT INTO comments (post_id, username, text, created_at) VALUES (?, ?, ?, ?)",
-                   (post_id, session["user"], text, datetime.utcnow().isoformat()))
-        db.commit()
-    return redirect(request.referrer or url_for("index"))
+    if not text:
+        return jsonify({'error': 'Empty comment'}), 400
+
+    db = get_db()
+    db.execute("INSERT INTO comments (post_id, username, text, created_at) VALUES (?, ?, ?, ?)",
+               (post_id, session["user"], text, datetime.utcnow().isoformat()))
+    db.commit()
+
+    return jsonify({'username': session["user"], 'text': text})
 
 @app.route("/delete_post/<int:post_id>", methods=["POST"])
 @login_required

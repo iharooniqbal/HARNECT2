@@ -162,15 +162,15 @@ function closeStoryModal() {
 function likePost(event, postId, btn) {
     event.preventDefault();
     fetch(`/like/${postId}`)
-        .then(() => {
-            // Optionally toggle heart style
-            if (btn.classList.contains('liked')) {
-                btn.classList.remove('liked');
-            } else {
+        .then(res => res.json())
+        .then(data => {
+            if (data.liked) {
                 btn.classList.add('liked');
+            } else {
+                btn.classList.remove('liked');
             }
-            // Reload page or update count dynamically
-            location.reload();
+            // Update like count
+            btn.textContent = `❤️ ${data.like_count} Likes`;
         })
         .catch(err => console.error(err));
 }
@@ -180,20 +180,33 @@ function submitComment(event, postId) {
     event.preventDefault();
     const form = event.target;
     const input = form.querySelector('input[name="comment"]');
-    const comment = input.value.trim();
-    if (!comment) return;
+    const commentText = input.value.trim();
+    if (!commentText) return;
 
     fetch(`/comment/${postId}`, {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: `comment=${encodeURIComponent(comment)}`
+        body: `comment=${encodeURIComponent(commentText)}`
     })
-    .then(() => {
+    .then(res => res.json())
+    .then(data => {
+        // Clear input
         input.value = '';
-        location.reload(); // Reload to show the new comment
+
+        // Add new comment dynamically
+        const commentsDiv = document.getElementById(`comments-${postId}`);
+        const p = document.createElement('p');
+        p.innerHTML = `<strong>@${data.username}:</strong> ${data.text}`;
+        commentsDiv.appendChild(p);
+
+        // Optionally update comment count if you have it displayed
+        const commentBtn = form.querySelector('button');
+        const count = commentsDiv.querySelectorAll('p').length;
+        commentBtn.textContent = `💬 Comment (${count})`;
     })
     .catch(err => console.error(err));
 }
+
 
 // ================= DELETE POST =================
 function deletePost(postId, postElementId) {
