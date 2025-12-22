@@ -387,32 +387,52 @@ def follow_user(username):
 @app.route("/feedback", methods=["GET", "POST"])
 @login_required
 def feedback():
-    if request.method == "POST":
-        if request.is_json:
-            data = request.get_json()
-            name = data.get("name") or session.get("user") or "Anonymous"
-            msg = data.get("message", "").strip()
-            if not msg:
-                return jsonify([])
+    db = get_db()
 
-            db = get_db()
+    # POST request: add/edit/delete feedback
+    if request.method == "POST":
+        action = request.form.get("action")  # 'add', 'edit', 'delete'
+        feedback_id = request.form.get("id")
+        message = request.form.get("message", "").strip()
+        user = session.get("user") or "Anonymous"
+
+        if action == "add" and message:
             db.execute(
                 "INSERT INTO feedback (name, message, created_at) VALUES (?, ?, ?)",
-                (name, msg, datetime.utcnow().isoformat())
+                (user, message, datetime.utcnow().isoformat())
             )
             db.commit()
 
-            # Return updated feedback list
-            feedbacks = db.execute("SELECT name, message FROM feedback ORDER BY created_at DESC").fetchall()
-            feedback_list = [{"name": f["name"], "message": f["message"]} for f in feedbacks]
-            return jsonify(feedback_list)
-        else:
-            # fallback for normal form submission
-            return redirect(url_for("feedback"))
+        elif action == "edit" and feedback_id and message:
+            # Only allow editing own feedback
+            db.execute(
+                "UPDATE feedback SET message=? WHERE id=? AND name=?",
+                (message, feedback_id, user)
+            )
+            db.commit()
 
-    # GET request
-    db = get_db()
-    feedbacks = db.execute("SELECT name, message FROM feedback ORDER BY created_at DESC").fetchall()
+        elif action == "delete" and feedback_id:
+            # Only allow deleting own feedback
+            db.execute(
+                "DELETE FROM feedback WHERE id=? AND name=?",
+                (feedback_id, user)
+            )
+            db.commit()
+
+        # Return updated feedback list for AJAX
+        feedbacks = db.execute(
+            "SELECT id, name, message FROM feedback ORDER BY created_at DESC"
+        ).fetchall()
+        feedback_list = [
+            {"id": f["id"], "name": f["name"], "message": f["message"]}
+            for f in feedbacks
+        ]
+        return jsonify(feedback_list)
+
+    # GET request: show page
+    feedbacks = db.execute(
+        "SELECT id, name, message FROM feedback ORDER BY created_at DESC"
+    ).fetchall()
     return render_template("feedback.html", feedbacks=feedbacks, user=session.get("user"))
 
 @app.errorhandler(413)
