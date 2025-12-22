@@ -155,3 +155,84 @@ function closeStoryModal() {
   document.getElementById('storyModal').style.display = 'none';
   document.getElementById('storyContent').innerHTML = '';
 }
+
+
+
+// ================= LIKES =================
+function likePost(event, postId, btn) {
+    event.preventDefault();
+    fetch(`/like/${postId}`)
+        .then(() => {
+            // Optionally toggle heart style
+            if (btn.classList.contains('liked')) {
+                btn.classList.remove('liked');
+            } else {
+                btn.classList.add('liked');
+            }
+            // Reload page or update count dynamically
+            location.reload();
+        })
+        .catch(err => console.error(err));
+}
+
+// ================= COMMENTS =================
+function submitComment(event, postId) {
+    event.preventDefault();
+    const form = event.target;
+    const input = form.querySelector('input[name="comment"]');
+    const comment = input.value.trim();
+    if (!comment) return;
+
+    fetch(`/comment/${postId}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: `comment=${encodeURIComponent(comment)}`
+    })
+    .then(() => {
+        input.value = '';
+        location.reload(); // Reload to show the new comment
+    })
+    .catch(err => console.error(err));
+}
+
+// ================= DELETE POST =================
+function deletePost(postId, postElementId) {
+    if (!confirm("Are you sure you want to delete this post?")) return;
+
+    fetch(`/delete_post/${postId}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const el = document.getElementById(postElementId);
+                if (el) el.remove();
+            } else {
+                alert(data.error || "Could not delete post.");
+            }
+        })
+        .catch(err => console.error(err));
+}
+
+// ================= DELETE COMMENT =================
+function deleteComment(commentId, commentElementId) {
+    if (!confirm("Delete this comment?")) return;
+
+    fetch(`/delete_comment/${commentId}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const el = document.getElementById(commentElementId);
+                if (el) el.remove();
+            } else {
+                alert(data.error || "Could not delete comment.");
+            }
+        })
+        .catch(err => console.error(err));
+}
+
+// ================= SHARE POST =================
+function sharePost(url) {
+    const fullUrl = window.location.origin + url;
+    navigator.clipboard.writeText(fullUrl)
+        .then(() => alert("Post URL copied to clipboard!"))
+        .catch(err => alert("Could not copy link."));
+}

@@ -344,7 +344,7 @@ def comment_post(post_id):
         db.commit()
     return redirect(request.referrer or url_for("index"))
 
-@app.route("/delete_post/<int:post_id>")
+@app.route("/delete_post/<int:post_id>", methods=["POST"])
 @login_required
 def delete_post(post_id):
     db = get_db()
@@ -355,10 +355,11 @@ def delete_post(post_id):
         db.execute("DELETE FROM likes WHERE post_id=?", (post_id,))
         db.execute("DELETE FROM comments WHERE post_id=?", (post_id,))
         db.commit()
-        flash("Post deleted")
-    return redirect(request.referrer or url_for("index"))
+        return jsonify({'success': True})
+    return jsonify({'success': False, 'error': 'Not authorized'})
 
-@app.route("/delete_comment/<int:comment_id>")
+
+@app.route("/delete_comment/<int:comment_id>", methods=["POST"])
 @login_required
 def delete_comment(comment_id):
     db = get_db()
@@ -367,8 +368,9 @@ def delete_comment(comment_id):
     if comment and comment["username"] == u:
         db.execute("DELETE FROM comments WHERE id=?", (comment_id,))
         db.commit()
-        flash("Comment deleted")
-    return redirect(request.referrer or url_for("index"))
+        return jsonify({'success': True})
+    return jsonify({'success': False, 'error': 'Not authorized'})
+
 
 @app.route("/follow/<username>")
 @login_required
