@@ -320,7 +320,7 @@ def profile(username):
     posts = db.execute("SELECT * FROM posts WHERE username=? ORDER BY created_at DESC", (username,)).fetchall()
     return render_template("profile.html", user=session.get("user"), profile=u, posts=posts)
 
-@app.route("/like/<int:post_id>")
+@app.route("/like/<int:post_id>", methods=["POST"])
 @login_required
 def like_post(post_id):
     db = get_db()

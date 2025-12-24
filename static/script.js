@@ -161,7 +161,7 @@ function closeStoryModal() {
 // ================= LIKES =================
 function likePost(event, postId, btn) {
     event.preventDefault();
-    fetch(`/like/${postId}`)
+    fetch(`/like/${postId}`, { method: "POST" })
         .then(res => res.json())
         .then(data => {
             if (data.liked) {
