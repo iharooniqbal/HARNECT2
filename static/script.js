@@ -161,19 +161,43 @@ function closeStoryModal() {
 // ================= LIKES =================
 function likePost(event, postId, btn) {
     event.preventDefault();
+
+    // Optimistic toggle
+    const isLiked = btn.classList.contains('liked');
+    btn.classList.toggle('liked');
+    let likeCount = parseInt(btn.dataset.likeCount || 0);
+    likeCount += isLiked ? -1 : 1;
+    btn.dataset.likeCount = likeCount;
+    btn.textContent = `❤️ ${likeCount} Likes`;
+
+    // Send update to backend
     fetch(`/like/${postId}`, { method: "POST" })
         .then(res => res.json())
         .then(data => {
-            if (data.liked) {
-                btn.classList.add('liked');
-            } else {
-                btn.classList.remove('liked');
-            }
-            // Update like count
+            // Sync just in case server differs
+            btn.classList.toggle('liked', data.liked);
+            btn.dataset.likeCount = data.like_count;
             btn.textContent = `❤️ ${data.like_count} Likes`;
         })
-        .catch(err => console.error(err));
+        .catch(err => {
+            console.error(err);
+            // Revert UI if error
+            btn.classList.toggle('liked', isLiked);
+            btn.dataset.likeCount = isLiked ? likeCount + 1 : likeCount - 1;
+            btn.textContent = `❤️ ${btn.dataset.likeCount} Likes`;
+        });
 }
+setInterval(async () => {
+    const posts = document.querySelectorAll('.like-btn');
+    for (let btn of posts) {
+        const postId = btn.dataset.postId;
+        const res = await fetch(`/like-count/${postId}`);
+        const data = await res.json();
+        btn.dataset.likeCount = data.like_count;
+        btn.textContent = `❤️ ${data.like_count} Likes`;
+        btn.classList.toggle('liked', data.user_liked);
+    }
+}, 5000); // every 5 seconds
 
 // ================= COMMENTS =================
 function submitComment(event, postId) {
