@@ -103,10 +103,13 @@
 
         <!-- ================= POST ACTIONS ================= -->
         <div class="post-actions">
+          <button class="like-btn {% if post['liked'] %}liked{% endif %}" 
+        data-post-id="{{ post['id'] }}" 
+        data-like-count="{{ post['like_count'] }}"
+        onclick="likePost(event, {{ post['id'] }}, this)">
+  ❤️ {{ post['like_count'] }} Likes
+</button>
 
-          <button class="like-btn" onclick="likePost(event, {{ post.id }}, this)">
-            ❤️ {{ post.likes | length if post.likes else 0 }} Likes
-          </button>
 
           <form class="comment-form" onsubmit="submitComment(event, {{ post.id }})">
             <input type="text" name="comment" placeholder="Add comment..." required>
