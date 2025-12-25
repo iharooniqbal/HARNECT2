@@ -239,18 +239,44 @@ def logout():
 def index():
     db = get_db()
     u = session["user"]
+
     posts = db.execute("""
         SELECT p.*, u.profile_pic,
         (SELECT COUNT(*) FROM likes l WHERE l.post_id=p.id) AS like_count,
-        (SELECT COUNT(*) FROM comments c WHERE c.post_id=p.id) AS comment_count,
-        EXISTS(SELECT 1 FROM likes l WHERE l.post_id=p.id AND l.username=?) AS liked
+        EXISTS(
+            SELECT 1 FROM likes l 
+            WHERE l.post_id=p.id AND l.username=?
+        ) AS liked
         FROM posts p
         LEFT JOIN users u ON p.username=u.username
         WHERE p.type='post'
         ORDER BY p.created_at DESC
     """, (u,)).fetchall()
-    stories = db.execute("SELECT * FROM posts WHERE type='story' ORDER BY created_at DESC").fetchall()
-    return render_template("index.html", user=u, posts=posts, stories=stories)
+
+    # 🔥 ATTACH COMMENTS TO EACH POST
+    posts_with_comments = []
+    for post in posts:
+        comments = db.execute("""
+            SELECT id, username, text 
+            FROM comments 
+            WHERE post_id=? 
+            ORDER BY created_at ASC
+        """, (post["id"],)).fetchall()
+
+        post = dict(post)
+        post["comments"] = comments
+        posts_with_comments.append(post)
+
+    stories = db.execute(
+        "SELECT * FROM posts WHERE type='story' ORDER BY created_at DESC"
+    ).fetchall()
+
+    return render_template(
+        "index.html",
+        user=u,
+        posts=posts_with_comments,
+        stories=stories
+    )
 
 @app.route("/explore")
 @login_required
