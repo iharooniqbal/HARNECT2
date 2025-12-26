@@ -134,11 +134,15 @@ def allowed_file(filename):
 def safe_save_file(file, folder=None):
     if folder is None:
         folder = app.config["UPLOAD_FOLDER"]
-    filename = secure_filename(file.filename)
-    ext = filename.rsplit(".", 1)[1].lower()
+    ext = file.filename.rsplit(".", 1)[1].lower()
     new_name = f"{uuid.uuid4().hex}.{ext}"
-    file.save(os.path.join(folder, new_name))
+    path = os.path.join(folder, new_name)
+    
+    with open(path, "wb") as f_out:
+        for chunk in file.stream:
+            f_out.write(chunk)
     return new_name
+
 
 def validate_uploaded_file(file):
     if not file:
@@ -472,7 +476,7 @@ def feedback():
 
 @app.errorhandler(413)
 def too_large(e):
-    flash(f"File too large. Limit: {app.config['MAX_CONTENT_LENGTH']//(1024*1024)} MB")
+    flash(f"File too large. Limit: {app.config['MAX_CONTENT_LENGTH']//(200*1024*1024)} MB")
     return redirect(request.referrer or url_for("index"))
 
 # -------------------------
