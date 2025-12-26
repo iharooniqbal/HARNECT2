@@ -134,15 +134,11 @@ def allowed_file(filename):
 def safe_save_file(file, folder=None):
     if folder is None:
         folder = app.config["UPLOAD_FOLDER"]
-    ext = file.filename.rsplit(".", 1)[1].lower()
+    filename = secure_filename(file.filename)
+    ext = filename.rsplit(".", 1)[1].lower()
     new_name = f"{uuid.uuid4().hex}.{ext}"
-    path = os.path.join(folder, new_name)
-    
-    with open(path, "wb") as f_out:
-        for chunk in file.stream:
-            f_out.write(chunk)
+    file.save(os.path.join(folder, new_name))
     return new_name
-
 
 def validate_uploaded_file(file):
     if not file:
