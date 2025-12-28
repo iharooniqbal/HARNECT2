@@ -1,3 +1,6 @@
+html {
+  background: #121212;
+}
 /* ==============================
    ROOT VARIABLES & GLOBALS
 ============================== */
@@ -19,7 +22,7 @@ body {
   display:flex;
   flex-direction:column;
   min-height:100vh;
-  transition:background .3s, color .3s;
+  transition:color .3s;
 }
 
 body.dark {
@@ -763,3 +766,154 @@ body.dark .feedback-item { background:#1e1e1e; color:#fff; }
   border-radius:16px;
   text-align:center;
   box-shadow:0 0 25px rgba(0,0,0,.4);}
+
+
+  /* ==============================
+   GLOBAL ANIMATIONS & KEYFRAMES
+============================== */
+
+@keyframes fadeSlideUp {
+  from { opacity:0; transform:translateY(20px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+@keyframes fadeSlideDown {
+  from { opacity:0; transform:translateY(-20px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+@keyframes scalePop {
+  0% { transform:scale(.8); opacity:0; }
+  60% { transform:scale(1.05); }
+  100% { transform:scale(1); opacity:1; }
+}
+
+@keyframes heartPop {
+  0% { transform:scale(1); }
+  50% { transform:scale(1.4); }
+  100% { transform:scale(1); }
+}
+
+@keyframes shake {
+  0%,100% { transform:translateX(0); }
+  25% { transform:translateX(-3px); }
+  75% { transform:translateX(3px); }
+}
+
+@keyframes fadeOut {
+  to { opacity:0; transform:scale(.95); }
+}
+
+/* ==============================
+   PAGE TRANSITION (ALL PAGES)
+============================== */
+
+.page {
+  animation: fadeSlideUp .45s ease;
+}
+
+/* add class "page-exit" before redirect */
+.page-exit {
+  animation: fadeOut .25s ease forwards;
+}
+
+/* ==============================
+   UPLOAD POST / STORY / VIDEO
+============================== */
+
+.post,
+.story {
+  animation: scalePop .4s ease;
+}
+
+.upload-success {
+  animation: scalePop .6s ease;
+}
+
+/* ==============================
+   STORY OPEN / CLOSE
+============================== */
+
+.story-modal {
+  animation: fadeSlideUp .35s ease;
+}
+
+.story-content {
+  animation: scalePop .4s ease;
+}
+
+/* ==============================
+   DARK / LIGHT MODE SWITCH
+============================== */
+
+body,
+.top-nav,
+.bottom-nav,
+.post,
+.upload-form,
+.profile-grid .post,
+.feedback-item {
+  transition: background .35s ease, color .35s ease, box-shadow .35s ease;
+}
+
+/* ==============================
+   LIKE / COMMENT / DELETE
+============================== */
+
+/* LIKE */
+.like-btn.liked {
+  color:#e63946;
+  animation: heartPop .3s ease;
+}
+
+/* COMMENT */
+.comment-form input:focus {
+  animation: fadeSlideDown .25s ease;
+}
+
+/* DELETE */
+.post.deleting,
+.feedback-item.deleting {
+  animation: fadeOut .25s ease forwards;
+}
+
+/* ==============================
+   FEEDBACK
+============================== */
+
+.feedback-item {
+  animation: fadeSlideUp .3s ease;
+}
+
+.feedback-item.edited {
+  animation: shake .25s ease;
+}
+
+/* ==============================
+   PROFILE UPDATE
+============================== */
+
+.profile-pic {
+  transition: transform .3s ease;
+}
+
+.profile-pic.updated {
+  animation: scalePop .4s ease;
+}
+
+.profile-info p.updated {
+  animation: fadeSlideUp .3s ease;
+}
+
+/* ==============================
+   EXPLORE SEARCH
+============================== */
+
+.explore-item {
+  animation: fadeSlideUp .35s ease;
+}
+
+.search-form input:focus {
+  box-shadow:0 0 12px rgba(30,144,255,.4);
+  transition:.3s;
+}

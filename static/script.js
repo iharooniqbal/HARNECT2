@@ -273,3 +273,111 @@ function sharePost(url) {
         .then(() => alert("Post URL copied to clipboard!"))
         .catch(err => alert("Could not copy link."));
 }
+
+
+/* ==============================
+   HARNECT ANIMATIONS CONTROLLER
+============================== */
+
+/* PAGE TRANSITION */
+document.querySelectorAll("a").forEach(link => {
+  if (link.target === "_blank") return;
+
+  link.addEventListener("click", e => {
+    const page = document.querySelector(".page");
+    if (!page) return;
+
+    e.preventDefault();
+    page.classList.add("page-exit");
+
+    setTimeout(() => {
+      window.location = link.href;
+    }, 250);
+  });
+});
+
+/* LIKE BUTTON */
+document.querySelectorAll(".like-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    btn.classList.toggle("liked");
+  });
+});
+
+/* DELETE POST / VIDEO */
+document.querySelectorAll(".delete-btn").forEach(btn => {
+  btn.addEventListener("click", e => {
+    const post = e.target.closest(".post");
+    if (!post) return;
+
+    post.classList.add("deleting");
+    setTimeout(() => post.remove(), 250);
+  });
+});
+
+/* STORY OPEN / CLOSE */
+document.querySelectorAll(".story-circle").forEach(story => {
+  story.addEventListener("click", () => {
+    const modal = document.querySelector(".story-modal");
+    if (!modal) return;
+
+    modal.style.display = "flex";
+  });
+});
+
+document.querySelectorAll(".close-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const modal = document.querySelector(".story-modal");
+    if (!modal) return;
+
+    modal.classList.add("deleting");
+    setTimeout(() => {
+      modal.style.display = "none";
+      modal.classList.remove("deleting");
+    }, 250);
+  });
+});
+
+/* UPLOAD SUCCESS */
+document.querySelectorAll(".upload-form").forEach(form => {
+  form.addEventListener("submit", () => {
+    form.classList.add("upload-success");
+  });
+});
+
+/* PROFILE PIC UPDATE */
+const profilePicInput = document.querySelector("#profilePicInput");
+if (profilePicInput) {
+  profilePicInput.addEventListener("change", () => {
+    document.querySelector(".profile-pic")?.classList.add("updated");
+  });
+}
+
+/* BIO UPDATE */
+document.querySelectorAll(".edit-bio-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelector(".profile-info p")?.classList.add("updated");
+  });
+});
+
+/* FEEDBACK ADD / EDIT / DELETE */
+document.querySelectorAll(".feedback-item").forEach(item => {
+  item.addEventListener("dblclick", () => {
+    item.classList.add("edited");
+    setTimeout(() => item.classList.remove("edited"), 300);
+  });
+});
+
+document.querySelectorAll(".delete-feedback").forEach(btn => {
+  btn.addEventListener("click", e => {
+    const item = e.target.closest(".feedback-item");
+    if (!item) return;
+
+    item.classList.add("deleting");
+    setTimeout(() => item.remove(), 250);
+  });
+});
+
+/* EXPLORE SEARCH RESULT ANIMATION */
+document.querySelectorAll(".explore-item").forEach(item => {
+  item.style.animation = "fadeSlideUp .35s ease";
+});
