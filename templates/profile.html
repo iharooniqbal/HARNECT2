@@ -28,12 +28,35 @@
       <h2>{{ profile.username }}</h2>
       <p>{{ profile.bio }}</p>
 
-      {% if user != profile.username %}
-        <button id="followBtn" onclick="toggleFollow('{{ profile.username }}', this)">
-          {% if user in profile.followers %}Unfollow{% else %}Follow{% endif %}
-        </button>
-        <p id="followersCount">{{ profile.followers|length }} followers</p>
-      {% endif %}
+      <div class="profile-stats">
+  <div>
+    <strong>{{ posts|length }}</strong>
+    <span>Posts</span>
+  </div>
+
+  <div>
+    <strong>{{ followers_count }}</strong>
+    <span>Followers</span>
+  </div>
+
+  <div>
+    <strong>{{ following_count }}</strong>
+    <span>Following</span>
+  </div>
+</div>
+
+
+{% if user != profile.username %}
+  {% if is_following %}
+    <a href="{{ url_for('follow_user', username=profile.username) }}" class="btn unfollow">
+      Following
+    </a>
+  {% else %}
+    <a href="{{ url_for('follow_user', username=profile.username) }}" class="btn follow">
+      Follow
+    </a>
+  {% endif %}
+{% endif %}
 
       {% if user == profile.username %}
         <form id="editProfileForm" action="{{ url_for('profile', username=profile.username) }}" method="POST" enctype="multipart/form-data">
@@ -47,7 +70,6 @@
         </form>
       {% endif %}
     </div>
-
     <!-- ================= PROFILE POSTS ================= -->
     <h3>{{ profile.username }}'s Posts</h3>
     <div class="profile-grid">
@@ -111,17 +133,6 @@
         });
     }
 
-    // Follow/Unfollow
-    function toggleFollow(username, btn) {
-      fetch(`/follow/${username}`, { method: 'POST', headers: {'Content-Type':'application/json'} })
-        .then(res => res.json())
-        .then(data => {
-          if (data.error) return alert(data.error);
-          btn.textContent = data.action === 'followed' ? 'Unfollow' : 'Follow';
-          const countEl = document.getElementById('followersCount');
-          if (countEl) countEl.textContent = `${data.followers_count} followers`;
-        });
-    }
   </script>
 
 </div>

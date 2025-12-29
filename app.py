@@ -332,6 +332,26 @@ def profile(username):
         flash("User not found")
         return redirect(url_for("index"))
 
+    # ---------------- FOLLOW COUNTS ----------------
+    followers_count = db.execute(
+        "SELECT COUNT(*) FROM followers WHERE username=?",
+        (username,)
+    ).fetchone()[0]
+
+    following_count = db.execute(
+        "SELECT COUNT(*) FROM followers WHERE follower=?",
+        (username,)
+    ).fetchone()[0]
+
+    # Check if logged-in user already follows this profile
+    is_following = False
+    if username != session["user"]:
+        is_following = bool(db.execute(
+            "SELECT 1 FROM followers WHERE username=? AND follower=?",
+            (username, session["user"])
+        ).fetchone())
+
+    # ---------------- PROFILE EDIT ----------------
     if request.method == "POST" and username == session["user"]:
         bio = request.form.get("bio", "")
         pic_file = request.files.get("profile_pic")
@@ -343,8 +363,20 @@ def profile(username):
         flash("Profile updated")
         return redirect(url_for("profile", username=username))
 
-    posts = db.execute("SELECT * FROM posts WHERE username=? ORDER BY created_at DESC", (username,)).fetchall()
-    return render_template("profile.html", user=session.get("user"), profile=u, posts=posts)
+    posts = db.execute(
+        "SELECT * FROM posts WHERE username=? ORDER BY created_at DESC",
+        (username,)
+    ).fetchall()
+
+    return render_template(
+        "profile.html",
+        user=session["user"],
+        profile=u,
+        posts=posts,
+        followers_count=followers_count,
+        following_count=following_count,
+        is_following=is_following
+    )
 
 @app.route("/like/<int:post_id>", methods=["POST"])
 @login_required

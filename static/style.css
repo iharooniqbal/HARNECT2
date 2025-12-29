@@ -917,3 +917,38 @@ body,
   box-shadow:0 0 12px rgba(30,144,255,.4);
   transition:.3s;
 }
+
+
+
+
+.profile-stats {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  margin: 15px 0;
+  text-align: center;
+}
+
+.profile-stats strong {
+  font-size: 18px;
+  display: block;
+}
+
+.profile-stats span {
+  font-size: 13px;
+  color: gray;
+}
+
+.btn.follow {
+  background: #0095f6;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 6px;
+}
+
+.btn.unfollow {
+  background: #efefef;
+  color: black;
+  padding: 6px 14px;
+  border-radius: 6px;
+}
