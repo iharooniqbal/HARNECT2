@@ -218,18 +218,33 @@ function submitComment(event, postId) {
         input.value = '';
 
         // Add new comment dynamically
-        const commentsDiv = document.getElementById(`comments-${postId}`);
-        const p = document.createElement('p');
-        p.innerHTML = `<strong>@${data.username}:</strong> ${data.text}`;
-        commentsDiv.appendChild(p);
+         const commentsDiv = document.getElementById(`comments-${postId}`);
+         const div = document.createElement('div');
+         div.className = 'comment';
+         div.id = `comment-${data.id}`;
+         // Add inner content without onclick
+          div.innerHTML = `
+          <strong>@${data.username}:</strong>
+          <span class="comment-text">${data.text}</span>
+          <button class="edit-btn">✏️</button>
+          <button class="delete-btn">🗑️</button>
+          `;
 
-        // Optionally update comment count if you have it displayed
-        const commentBtn = form.querySelector('button');
-        const count = commentsDiv.querySelectorAll('p').length;
-        commentBtn.textContent = `💬 Comment (${count})`;
-    })
-    .catch(err => console.error(err));
-}
+          // Append to comments container
+          commentsDiv.appendChild(div);
+
+          // Attach event listeners
+         div.querySelector('.edit-btn').addEventListener('click', () => editComment(data.id));
+         div.querySelector('.delete-btn').addEventListener('click', () => deleteComment(data.id, `comment-${data.id}`));
+
+          // Update comment count
+         const commentBtn = form.querySelector('button');
+         const count = commentsDiv.querySelectorAll('.comment').length;
+         commentBtn.textContent = `💬 Comment (${count})`;
+        })
+        .catch(err => console.error(err));
+      }
+
 
 
 // ================= DELETE POST =================
@@ -244,23 +259,6 @@ function deletePost(postId, postElementId) {
                 if (el) el.remove();
             } else {
                 alert(data.error || "Could not delete post.");
-            }
-        })
-        .catch(err => console.error(err));
-}
-
-// ================= DELETE COMMENT =================
-function deleteComment(commentId, commentElementId) {
-    if (!confirm("Delete this comment?")) return;
-
-    fetch(`/delete_comment/${commentId}`, { method: 'POST' })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                const el = document.getElementById(commentElementId);
-                if (el) el.remove();
-            } else {
-                alert(data.error || "Could not delete comment.");
             }
         })
         .catch(err => console.error(err));
@@ -381,3 +379,48 @@ document.querySelectorAll(".delete-feedback").forEach(btn => {
 document.querySelectorAll(".explore-item").forEach(item => {
   item.style.animation = "fadeSlideUp .35s ease";
 });
+
+/*edit and delete comment*/
+
+function deleteComment(commentId) {
+  if (!confirm("Delete this comment?")) return;
+
+  fetch(`/delete_comment/${commentId}`, {
+    method: "POST"
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      document.getElementById(`comment-${commentId}`).remove();
+    } else {
+      alert(data.error || "Error deleting comment");
+    }
+  });
+}
+
+
+function editComment(commentId) {
+  const commentDiv = document.getElementById(`comment-${commentId}`);
+  const oldText = commentDiv.querySelector(".comment-text").innerText;
+
+  const newText = prompt("Edit your comment:", oldText);
+  if (!newText || newText.trim() === oldText) return;
+
+  fetch(`/edit_comment/${commentId}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: `text=${encodeURIComponent(newText)}`
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      commentDiv.querySelector(".comment-text").innerText = data.text;
+    } else {
+      alert(data.error || "Error editing comment");
+    }
+  });
+}
+
+

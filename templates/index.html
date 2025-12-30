@@ -129,8 +129,16 @@
         <!-- ================= COMMENTS ================= -->
         <div class="comments" id="comments-{{ post.id }}">
           {% for c in post.comments %}
-            <p><strong>@{{ c.username }}:</strong> {{ c.text }}</p>
+          <div class="comment" id="comment-{{ c.id }}">
+            <strong>@{{ c.username }}:</strong>
+            <span class="comment-text">{{ c.text }}</span>
+            {% if user == c.username %}
+            <button onclick="editComment({{ c.id }})">✏️</button>
+            <button onclick="deleteComment({{ c.id }})">🗑️</button>
+            {% endif %}
+          </div>
           {% endfor %}
+
         </div>
 
       </div>

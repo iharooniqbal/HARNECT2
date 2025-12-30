@@ -436,6 +436,31 @@ def delete_comment(comment_id):
         return jsonify({'success': True})
     return jsonify({'success': False, 'error': 'Not authorized'})
 
+@app.route("/edit_comment/<int:comment_id>", methods=["POST"])
+@login_required
+def edit_comment(comment_id):
+    new_text = request.form.get("text", "").strip()
+    if not new_text:
+        return jsonify({"success": False, "error": "Empty comment"})
+
+    db = get_db()
+    u = session["user"]
+
+    comment = db.execute(
+        "SELECT * FROM comments WHERE id=?",
+        (comment_id,)
+    ).fetchone()
+
+    if comment and comment["username"] == u:
+        db.execute(
+            "UPDATE comments SET text=? WHERE id=?",
+            (new_text, comment_id)
+        )
+        db.commit()
+        return jsonify({"success": True, "text": new_text})
+
+    return jsonify({"success": False, "error": "Not authorized"})
+
 
 @app.route("/follow/<username>")
 @login_required
