@@ -27,7 +27,7 @@ from flask import (
 )
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
-
+from datetime import timedelta
 # -------------------------
 # Configuration
 # -------------------------
@@ -271,6 +271,12 @@ def index():
         "SELECT * FROM posts WHERE type='story' ORDER BY created_at DESC"
     ).fetchall()
 
+# Stories: only show last 24 hours
+    cutoff = datetime.utcnow() - timedelta(hours=24)
+    stories = db.execute(
+        "SELECT * FROM posts WHERE type='story' AND created_at>=? ORDER BY created_at DESC",
+        (cutoff.isoformat(),)
+    ).fetchall()
     return render_template(
         "index.html",
         user=u,
@@ -322,6 +328,19 @@ def upload():
         return redirect(url_for("index"))
 
     return render_template("upload.html", user=session.get("user"))
+
+
+@app.route("/delete_story/<int:story_id>", methods=["POST"])
+@login_required
+def delete_story(story_id):
+    db = get_db()
+    u = session["user"]
+    story = db.execute("SELECT * FROM posts WHERE id=? AND type='story'", (story_id,)).fetchone()
+    if story and story["username"] == u:
+        db.execute("DELETE FROM posts WHERE id=?", (story_id,))
+        db.commit()
+        return jsonify({"success": True})
+    return jsonify({"success": False, "error": "Not authorized"})
 
 @app.route("/profile/<username>", methods=["GET", "POST"])
 @login_required
