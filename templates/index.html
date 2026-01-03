@@ -49,7 +49,13 @@
               <img src="{{ url_for('uploaded_file', filename=file) }}" alt="My Story">
             {% endif %}
           </div>
-          <button class="delete-story-btn" onclick="deleteStory({{ my_story[-1].id }}, this)">🗑️</button>
+          <button
+          class="delete-story-btn"
+          data-id="{{ my_story[-1].id }}"
+          onclick="event.stopPropagation(); deleteStory({{ my_story[-1].id }}, this)">
+          🗑️
+        </button>
+
           {% if not file.endswith(('.mp4', '.webm', '.ogg', '.avi')) %}
             <p>You</p>
           {% endif %}

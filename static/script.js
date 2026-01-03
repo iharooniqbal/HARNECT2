@@ -157,6 +157,30 @@ function closeStoryModal() {
 }
 
 
+// ================= STORY EDIT AND DELETE BTN =================
+document.querySelectorAll('.story')
+.forEach(story => { // Auto disappear after 10 seconds (for demo) 
+    setTimeout(() => story.remove(), 86400000);
+    });
+
+function deleteStory(storyId, btn) {
+  if (!confirm("Delete this story?")) return;
+
+  fetch(`/delete_story/${storyId}`, {
+    method: "POST"
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      btn.closest(".story").remove();
+    } else {
+      alert(data.error || "Error deleting story");
+    }
+  })
+  .catch(err => console.error(err));
+}
+
+
 
 // ================= LIKES =================
 function likePost(event, postId, btn) {
@@ -423,22 +447,4 @@ function editComment(commentId) {
   });
 }
 
-document.querySelectorAll('.story').forEach(story => {
-    // Auto disappear after 10 seconds (for demo)
-    setTimeout(() => story.remove(), 86400000);
-
-    // Delete button
-    const deleteBtn = story.querySelector('.delete-story-btn');
-    if (deleteBtn) {
-        deleteBtn.addEventListener('click', () => {
-            const storyId = deleteBtn.dataset.id;
-            fetch(`/delete_story/${storyId}`, { method: 'POST' })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) story.remove();
-                    else alert(data.error || "Error deleting story");
-                });
-        });
-    }
-});
 
