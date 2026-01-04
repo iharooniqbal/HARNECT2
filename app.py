@@ -425,8 +425,14 @@ def comment_post(post_id):
     db.execute("INSERT INTO comments (post_id, username, text, created_at) VALUES (?, ?, ?, ?)",
                (post_id, session["user"], text, datetime.utcnow().isoformat()))
     db.commit()
-
-    return jsonify({'username': session["user"], 'text': text})
+    comment_id = db.execute(
+        "SELECT last_insert_rowid()"
+        ).fetchone()[0]
+    return jsonify({
+            'id': comment_id,
+            'username': session["user"],
+            'text': text
+            })
 
 @app.route("/delete_post/<int:post_id>", methods=["POST"])
 @login_required

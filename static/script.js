@@ -248,11 +248,12 @@ function submitComment(event, postId) {
          div.id = `comment-${data.id}`;
          // Add inner content without onclick
           div.innerHTML = `
-          <strong>@${data.username}:</strong>
-          <span class="comment-text">${data.text}</span>
-          <button class="edit-btn">✏️</button>
-          <button class="delete-btn">🗑️</button>
-          `;
+<strong>@${data.username}:</strong>
+<span class="comment-text">${data.text}</span>
+<button onclick="editComment(${data.id})">✏️</button>
+<button onclick="deleteComment(${data.id})">🗑️</button>
+`;
+
 
           // Append to comments container
           commentsDiv.appendChild(div);
