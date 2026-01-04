@@ -8,6 +8,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (themeToggle) themeToggle.textContent = '☀️';
   }
 
+
+  (function() {
+    try {
+      if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.body.classList.add('dark'); // optional, if your CSS uses body.dark
+      }
+    } catch(e) {}
+  })();
+
+
+
   if (themeToggle) {
     themeToggle.addEventListener('click', () => {
       body.classList.toggle('dark');
@@ -447,5 +459,3 @@ function editComment(commentId) {
     }
   });
 }
-
-

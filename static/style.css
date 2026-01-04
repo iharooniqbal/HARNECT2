@@ -13,6 +13,7 @@ html {
   --accent:#1e90ff;
 }
 
+
 * { margin:0; padding:0; box-sizing:border-box; }
 
 body {
@@ -951,4 +952,55 @@ body,
   color: black;
   padding: 6px 14px;
   border-radius: 6px;
+}
+
+
+
+body.dark {
+  --bg-light: #1c1c1c; /* optional: fallback for light elements */
+  --text-light: #fff;
+  --text-dark: #fff;
+}
+
+/* Story Modal Dark */
+body.dark .story-content {
+  background: #1e1e1e;
+  color: #fff;
+}
+
+/* Upload form Dark */
+body.dark .upload-form {
+  background: #1e1e1e;
+  color: #fff;
+}
+
+/* Post dark */
+body.dark .post {
+  background: #1e1e1e;
+  color: #fff;
+}
+
+/* Profile Grid posts dark */
+body.dark .profile-grid .post {
+  background: #1e1e1e;
+}
+
+/* Feedback Items dark */
+body.dark .feedback-item {
+  background: #1e1e1e;
+  color: #fff;
+}
+
+/* Explore Items dark */
+body.dark .explore-item {
+  background: #1e1e1e;
+  color: #fff;
+}
+
+/* Inputs in forms (search, upload) */
+body.dark input,
+body.dark textarea {
+  background: #2a2a2a;
+  color: #fff;
+  border: 1px solid #555;
 }
