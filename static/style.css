@@ -1004,3 +1004,39 @@ body.dark textarea {
   color: #fff;
   border: 1px solid #555;
 }
+
+
+
+/* Page background */
+body {
+  background: radial-gradient(circle at top, #ffffff, #eef6ff, #dbeeff);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Wave layers */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  width: 120%;
+  height: 300px;
+  left: -10%;
+  border-radius: 50%;
+  z-index: -1;
+}
+
+/* First wave */
+body::before {
+  bottom: -120px;
+  background: rgba(11, 94, 215, 0.10);
+}
+
+/* Second wave */
+body::after {
+  bottom: -200px;
+  background: rgba(11, 94, 215, 0.06);
+}
+
+
