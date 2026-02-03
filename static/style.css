@@ -98,72 +98,56 @@ button { cursor:pointer; }
 .splash-title span { color:#ffe066; }
 .splash-subtitle { margin-top:10px;font-size:1rem;opacity:.9;letter-spacing:.5px; }
 
-/* ==============================
-   NAVBAR
-============================== */
-.top-nav {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:12px 18px;
-  background:#fff;
-  border-bottom:1px solid #ddd;
-  position:sticky;
-  top:0;
-  z-index:10;
-  box-shadow:0 2px 5px rgba(0,0,0,.05);
-}
-body.dark .top-nav { background:#121212; border-bottom:1px solid #333; }
+/* ============================== NAVBAR (BEAUTIFIED) ============================== */
+.top-nav{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;background:rgba(255,255,255,.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,0,0,.06);position:sticky;top:0;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,.06);}
 
-.logo { font-size:22px;font-weight:800;background:linear-gradient(90deg,#007bff,#1a1915);-webkit-background-clip:text;-webkit-text-fill-color:transparent; letter-spacing:1px; display:flex; align-items:center; animation:fadeIn .6s ease;}
-.page-title { font-size:18px;font-weight:600;text-align:center; flex:1;color:#333;}
-body.dark .page-title { color:#f5f5f5; }
-.theme-toggle { font-size:20px;color:#555;cursor:pointer;transition:transform .3s,color .3s; }
-.theme-toggle:hover { transform:rotate(20deg); color:#007bff; }
-body.dark .theme-toggle { color:#f5f5f5; }
+body.dark .top-nav{background:rgba(18,18,18,.7);border-bottom:1px solid rgba(255,255,255,.08);box-shadow:0 4px 12px rgba(0,0,0,.4);}
 
-/* ==============================
-   BOTTOM NAVIGATION
-============================== */
-.bottom-nav {
-  display:flex;
-  justify-content:space-around;
-  align-items:center;
-  background:#fff;
-  left:0;
-  width:100%;
-  padding:10px 0;
-  position:fixed;
-  bottom:0;
-  z-index:1000;
-  border-top:1px solid #ccc;
-}
-.bottom-nav a { text-align:center; color:#000; }
-.bottom-nav a span { display:block; font-size:12px; }
-.bottom-nav a:hover span { color:#1e90ff; }
-.upload-btn { background:var(--blue-yellow-gradient); color:#fff; border-radius:50%; width:55px; height:55px; display:flex; justify-content:center; align-items:center; font-size:26px; transform:translateY(-15px); box-shadow:0 4px 10px rgba(0,0,0,.3); }
-body.dark .bottom-nav { background:#121212; border-top:1px solid #333; }
-body.dark .bottom-nav a { color:#fff; }
-body.dark .bottom-nav a:hover span { color:#1e90ff; }
+.logo{font-size:22px;font-weight:800;background:linear-gradient(90deg,#1e90ff,#ffcc00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;display:flex;align-items:center;animation:fadeIn .6s ease;transition:transform .3s ease;}
+.logo:hover{transform:scale(1.05);}
 
-/* ==============================
-   STORIES
-============================== */
-.stories {
-  display: flex;
-  gap: 15px;
-  overflow-x: auto;
-  padding: 12px 10px;
-  border-bottom: 1px solid #ddd;
-  scroll-behavior: smooth;
-}
-.stories::-webkit-scrollbar { display:none; }
-.story { flex:0 0 auto; text-align:center; }
-.story-circle { width:70px; height:70px; border-radius:50%; padding:3px; display:flex; align-items:center; justify-content:center; background: linear-gradient(45deg,#f58529,#dd2a7b,#8134af,#515bd4); cursor:pointer; transition: transform 0.2s; }
-.story-circle img { width:64px;height:64px;border-radius:50%;object-fit:cover;background:#eee;border:2px solid #fff; }
-.story-circle:hover { transform: scale(1.1); }
-.story p { font-size:12px; margin-top:4px; color:var(--text-light); max-width:70px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-body.dark .story p { color:var(--text-dark); }
+.page-title{font-size:18px;font-weight:600;text-align:center;flex:1;color:#222;letter-spacing:.5px;}
+body.dark .page-title{color:#f5f5f5;}
+
+.theme-toggle{font-size:20px;color:#666;cursor:pointer;transition:all .3s ease;padding:6px;border-radius:50%;}
+.theme-toggle:hover{transform:rotate(25deg) scale(1.15);color:#1e90ff;background:rgba(30,144,255,.1);}
+body.dark .theme-toggle{color:#f5f5f5;}
+body.dark .theme-toggle:hover{background:rgba(77,163,255,.15);color:#4da3ff;}
+
+/* ============================== BOTTOM NAVIGATION (BEAUTIFIED) ============================== */
+.bottom-nav{display:flex;justify-content:space-around;align-items:center;background:rgba(255,255,255,.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);left:0;width:100%;padding:10px 0;position:fixed;bottom:0;z-index:1000;border-top:1px solid rgba(0,0,0,.06);box-shadow:0 -4px 15px rgba(0,0,0,.08);}
+
+.bottom-nav a{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;color:#333;font-size:18px;transition:all .25s ease;padding:6px 10px;border-radius:12px;}
+.bottom-nav a span{display:block;font-size:11px;font-weight:500;}
+.bottom-nav a:hover{color:#1e90ff;background:rgba(30,144,255,.08);transform:translateY(-2px);}
+.bottom-nav a:active{transform:scale(.92);}
+
+/* Floating Upload Button */
+.upload-btn{background:var(--blue-yellow-gradient);color:#fff;border-radius:50%;width:58px;height:58px;display:flex;justify-content:center;align-items:center;font-size:26px;transform:translateY(-18px);box-shadow:0 6px 15px rgba(0,0,0,.25);transition:all .3s ease;}
+.upload-btn:hover{transform:translateY(-22px) scale(1.08);box-shadow:0 8px 20px rgba(0,0,0,.3);}
+.upload-btn:active{transform:scale(.95);}
+
+/* DARK MODE */
+body.dark .bottom-nav{background:rgba(18,18,18,.75);border-top:1px solid rgba(255,255,255,.08);box-shadow:0 -4px 15px rgba(0,0,0,.5);}
+body.dark .bottom-nav a{color:#eee;}
+body.dark .bottom-nav a:hover{color:#4da3ff;background:rgba(77,163,255,.12);}
+
+/* ============================== STORIES (BEAUTIFIED) ============================== */
+.stories{display:flex;gap:14px;overflow-x:auto;padding:14px 12px;border-bottom:1px solid rgba(0,0,0,.06);scroll-behavior:smooth;background:linear-gradient(to bottom,rgba(255,255,255,.7),rgba(255,255,255,.4));backdrop-filter:blur(6px);}
+.stories::-webkit-scrollbar{display:none;}
+
+.story{flex:0 0 auto;text-align:center;animation:fadeSlideUp .4s ease;}
+.story-circle{width:72px;height:72px;border-radius:50%;padding:3px;display:flex;align-items:center;justify-content:center;background:linear-gradient(45deg,#f58529,#dd2a7b,#8134af,#515bd4);cursor:pointer;transition:all .25s ease;box-shadow:0 4px 10px rgba(0,0,0,.12);}
+.story-circle img{width:66px;height:66px;border-radius:50%;object-fit:cover;background:#eee;border:2px solid #fff;transition:transform .25s ease;}
+.story-circle:hover{transform:scale(1.12);box-shadow:0 6px 15px rgba(0,0,0,.18);}
+.story-circle:hover img{transform:scale(1.05);}
+
+.story p{font-size:12px;margin-top:6px;color:var(--text-light);max-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;}
+
+body.dark .stories{background:linear-gradient(to bottom,rgba(18,18,18,.7),rgba(18,18,18,.4));border-bottom:1px solid rgba(255,255,255,.06);}
+body.dark .story p{color:var(--text-dark);}
+body.dark .story-circle img{border:2px solid #121212;}
+
 
 /* ==============================
    FEED / POSTS
@@ -176,11 +160,27 @@ body.dark .post { background:#1e1e1e; color:#fff; }
 .post .caption { padding:10px; font-size:.95rem; color:var(--text-light); }
 body.dark .post .caption { color:#fff; }
 
-/* Post Actions */
-.post-actions { display:flex; flex-wrap:wrap; gap:10px; padding:8px 0; overflow-x:auto; }
-.post-actions button, .post-actions .comment-form button { padding:6px 10px; font-size:14px; border-radius:6px; cursor:pointer; flex-shrink:0; }
-.post-actions .comment-form { flex:1; display:flex; gap:6px; }
-.post-actions .comment-form input { flex:1; padding:6px; font-size:14px; }
+/* ============================== POST ACTIONS (BEAUTIFIED) ============================== */
+.post-actions{display:flex;align-items:center;gap:8px;padding:10px 12px 6px;border-top:1px solid rgba(0,0,0,.05);flex-wrap:wrap;}
+.post-actions button{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:30px;border:none;font-size:13px;font-weight:500;background:#f5f7fb;color:#333;cursor:pointer;transition:all .25s ease;box-shadow:0 2px 5px rgba(0,0,0,.05);}
+.post-actions button i{font-size:14px;}
+.post-actions button:hover{transform:translateY(-2px);background:#e8f0ff;color:var(--accent);box-shadow:0 4px 10px rgba(0,0,0,.1);}
+.post-actions button:active{transform:scale(.95);}
+.like-btn.liked{background:#ffe6ea;color:#e63946;animation:heartPop .3s ease;}
+.share-btn:hover{background:#e6f4ff;color:#1e90ff;}
+.delete-btn{background:#ffeaea;color:#e63946;}
+.delete-btn:hover{background:#ffccd5;color:#b00020;}
+.post-actions .comment-form{flex:1;display:flex;align-items:center;gap:6px;}
+.post-actions .comment-form input{flex:1;padding:7px 10px;border-radius:20px;border:1px solid #ddd;outline:none;font-size:13px;transition:all .25s ease;}
+.post-actions .comment-form input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(30,144,255,.15);}
+.post-actions .comment-form button{background:var(--accent);color:#fff;padding:7px 14px;}
+.post-actions .comment-form button:hover{background:#0d6efd;}
+body.dark .post-actions{border-top:1px solid #2a2a2a;}
+body.dark .post-actions button{background:#2a2a2a;color:#eee;}
+body.dark .post-actions button:hover{background:#1e3a5f;color:#4da3ff;}
+body.dark .delete-btn{background:#3a1f25;}
+body.dark .delete-btn:hover{background:#5a1e28;}
+body.dark .comment-form input{background:#1c1c1c;border:1px solid #444;color:#fff;}
 
 /* LIKE / COMMENT / DELETE */
 .like-btn.liked { color:#e63946; animation: heartPop .3s ease; }
