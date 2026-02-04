@@ -134,21 +134,24 @@ body.dark .bottom-nav a{color:#eee;}
 body.dark .bottom-nav a:hover{color:#4da3ff;background:rgba(77,163,255,.12);}
 
 /* ============================== STORIES (BEAUTIFIED) ============================== */
-.stories{display:flex;gap:14px;overflow-x:auto;padding:14px 12px;border-bottom:1px solid rgba(0,0,0,.06);scroll-behavior:smooth;background:linear-gradient(to bottom,rgba(255,255,255,.7),rgba(255,255,255,.4));backdrop-filter:blur(6px);}
-.stories::-webkit-scrollbar{display:none;}
+/* ================= STORIES INSTAGRAM STYLE ================= */
+.stories{display:flex;gap:14px;overflow-x:auto;padding:12px 10px}
+.story{text-align:center}
+.story-circle{width:72px;height:72px;border-radius:50%;padding:2px;
+background:linear-gradient(45deg,#ff004c,#ffcc00,#833ab4);position:relative;cursor:pointer}
+.story-circle img,.story-circle video{width:100%;height:100%;border-radius:50%;
+object-fit:cover;border:2px solid #fff}
 
-.story{flex:0 0 auto;text-align:center;animation:fadeSlideUp .4s ease;}
-.story-circle{width:72px;height:72px;border-radius:50%;padding:3px;display:flex;align-items:center;justify-content:center;background:linear-gradient(45deg,#f58529,#dd2a7b,#8134af,#515bd4);cursor:pointer;transition:all .25s ease;box-shadow:0 4px 10px rgba(0,0,0,.12);}
-.story-circle img{width:66px;height:66px;border-radius:50%;object-fit:cover;background:#eee;border:2px solid #fff;transition:transform .25s ease;}
-.story-circle:hover{transform:scale(1.12);box-shadow:0 6px 15px rgba(0,0,0,.18);}
-.story-circle:hover img{transform:scale(1.05);}
+/* 3 DOT MENU */
+.story-menu-btn{position:absolute;top:-5px;right:-5px;width:22px;height:22px;
+border-radius:50%;border:none;background:rgba(0,0,0,.7);color:#fff;font-size:14px;
+display:none;align-items:center;justify-content:center;cursor:pointer}
+.your-story .story-menu-btn{display:flex}
 
-.story p{font-size:12px;margin-top:6px;color:var(--text-light);max-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;}
-
-body.dark .stories{background:linear-gradient(to bottom,rgba(18,18,18,.7),rgba(18,18,18,.4));border-bottom:1px solid rgba(255,255,255,.06);}
-body.dark .story p{color:var(--text-dark);}
-body.dark .story-circle img{border:2px solid #121212;}
-
+.story-menu{position:absolute;top:26px;right:-10px;background:#1c1c1c;
+border-radius:8px;padding:6px;display:none;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.story-menu button{background:none;border:none;color:#ff4d4d;padding:6px 10px;cursor:pointer}
+.story-menu button:hover{background:rgba(255,255,255,.1)}
 
 /* ==============================
    FEED / POSTS

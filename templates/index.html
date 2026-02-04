@@ -36,33 +36,43 @@
 
     <!-- ================= USER STORY ================= -->
     {% if user %}
-      {% set my_story = stories | selectattr('username', 'equalto', user) | list %}
-      {% if my_story %}
-        <div class="story" onclick="openStories('{{ user }}')">
-          <div class="story-circle">
-            {% set file = my_story[-1].filename %}
-            {% if file.endswith(('.mp4', '.webm', '.ogg', '.avi')) %}
-              <video class="story-video" muted>
-                <source src="{{ url_for('uploaded_file', filename=file) }}" type="video/mp4">
-              </video>
-            {% else %}
-              <img src="{{ url_for('uploaded_file', filename=file) }}" alt="My Story">
-            {% endif %}
-          </div>
-          <button
-          class="delete-story-btn"
-          data-id="{{ my_story[-1].id }}"
-          onclick="event.stopPropagation(); deleteStory({{ my_story[-1].id }}, this)">
-          🗑️
-        </button>
-
-          {% if not file.endswith(('.mp4', '.webm', '.ogg', '.avi')) %}
-            <p>You</p>
-          {% endif %}
-        </div>
-      {% endif %}
+{% set my_story = stories | selectattr('username','equalto',user) | list %}
+{% if my_story %}
+<div class="story your-story" onclick="openStories('{{ user }}')">
+  <div class="story-circle">
+    {% set file = my_story[-1].filename %}
+    {% if file.endswith(('.mp4','.webm','.ogg','.avi')) %}
+      <video muted><source src="{{ url_for('uploaded_file', filename=file) }}"></video>
+    {% else %}
+      <img src="{{ url_for('uploaded_file', filename=file) }}">
     {% endif %}
+    <button class="story-menu-btn" onclick="event.stopPropagation();toggleStoryMenu(this)">⋮</button>
+    <div class="story-menu">
+      <button onclick="deleteStory({{ my_story[-1].id }})">Delete</button>
+    </div>
+  </div>
+  <p>You</p>
+</div>
+{% endif %}
+{% endif %}
 
+{% set shown_users=[] %}
+{% for story in stories %}
+{% if story.username!=user and story.username not in shown_users %}
+{% set _=shown_users.append(story.username) %}
+<div class="story" onclick="openStories('{{ story.username }}')">
+  <div class="story-circle">
+    {% if story.filename.endswith(('.mp4','.webm','.ogg','.avi')) %}
+      <video muted><source src="{{ url_for('uploaded_file', filename=story.filename) }}"></video>
+    {% else %}
+      <img src="{{ url_for('uploaded_file', filename=story.filename) }}">
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+{% endfor %}
+
+</div>
     <!-- ================= OTHER USERS STORIES ================= -->
     {% set shown_users = [] %}
     {% for story in stories %}

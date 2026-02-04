@@ -170,28 +170,26 @@ function closeStoryModal() {
 
 
 // ================= STORY EDIT AND DELETE BTN =================
-document.querySelectorAll('.story')
-.forEach(story => { // Auto disappear after 10 seconds (for demo) 
-    setTimeout(() => story.remove(), 86400000);
-    });
-
-function deleteStory(storyId, btn) {
-  if (!confirm("Delete this story?")) return;
-
-  fetch(`/delete_story/${storyId}`, {
-    method: "POST"
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      btn.closest(".story").remove();
-    } else {
-      alert(data.error || "Error deleting story");
-    }
-  })
-  .catch(err => console.error(err));
+// ================= STORY MENU SYSTEM =================
+function toggleStoryMenu(btn){
+  const m = btn.nextElementSibling;
+  m.style.display = m.style.display === "block" ? "none" : "block";
 }
 
+document.addEventListener("click", () => {
+  document.querySelectorAll(".story-menu")
+    .forEach(m => m.style.display = "none");
+});
+
+function deleteStory(id){
+  if(!confirm("Delete story?")) return;
+
+  fetch(`/delete_story/${id}`, {method:"POST"})
+    .then(r=>r.json())
+    .then(d=>{
+      if(d.success) location.reload(); // keeps stories synced
+    });
+}
 
 
 // ================= LIKES =================
@@ -349,16 +347,8 @@ document.querySelectorAll(".delete-btn").forEach(btn => {
   });
 });
 
-/* STORY OPEN / CLOSE */
-document.querySelectorAll(".story-circle").forEach(story => {
-  story.addEventListener("click", () => {
-    const modal = document.querySelector(".story-modal");
-    if (!modal) return;
 
-    modal.style.display = "flex";
-  });
-});
-
+/* CLOSE STORY MODAL */
 document.querySelectorAll(".close-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     const modal = document.querySelector(".story-modal");
