@@ -449,3 +449,35 @@ function editComment(commentId) {
     }
   });
 }
+
+
+
+// ================= OPEN POST MODAL =================
+document.addEventListener("click", function(e) {
+  // Find the post that was clicked
+  const post = e.target.closest(".post");
+  if (!post) return; // click not on a post
+
+  // Get the image inside the post
+  const img = post.querySelector("img");
+  const modal = document.getElementById("postModal");
+  const modalImg = document.getElementById("modalImg");
+
+  // Open modal and show image
+  if (img && modal && modalImg) {
+    modal.style.display = "flex";
+    modalImg.src = img.src;
+  }
+});
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("postModal");
+  const closeBtn = document.getElementById("closeModalBtn");
+
+  if (closeBtn && modal) {
+    closeBtn.addEventListener("click", () => {
+      modal.style.display = "none";
+    });
+  }
+});

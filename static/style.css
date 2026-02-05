@@ -312,3 +312,62 @@ body.dark .story-content { background:#1e1e1e; color:#fff; }
   .profile-info p { font-size:14px; }
   .caption { font-size:.85rem; }
 }
+ 
+
+/* ================= POST MODAL ================= */
+#postModal {
+  display: none;              /* hidden by default */
+  position: fixed;            /* stay on screen */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.85); /* dark overlay */
+  justify-content: center;    /* center content horizontally */
+  align-items: center;        /* center content vertically */
+  z-index: 1000;              /* on top of everything */
+  flex-direction: column;     /* stack close button + image */
+  padding: 20px;
+  box-sizing: border-box;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Modal Image */
+#postModal .modal-content {
+  max-width: 90%;
+  max-height: 70%;
+  border-radius: 14px;
+  object-fit: contain;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+  transition: transform 0.3s ease;
+}
+
+/* Close Button */
+#postModal .close-btn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 32px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  z-index: 1010;
+  transition: transform 0.2s ease;
+}
+
+#postModal .close-btn:hover {
+  transform: scale(1.2);
+  color: #ff5555;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Optional: smooth scaling for image */
+#postModal.show img {
+  transform: scale(1);
+  transition: transform 0.3s ease;
+}
