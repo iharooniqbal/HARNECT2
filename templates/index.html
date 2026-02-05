@@ -1,4 +1,4 @@
-<!doctype html>
+<!doctype html> 
 <html lang="en">
 <head>
 
@@ -36,60 +36,45 @@
 
     <!-- ================= USER STORY ================= -->
     {% if user %}
-{% set my_story = stories | selectattr('username','equalto',user) | list %}
-{% if my_story %}
-<div class="story your-story" onclick="openStories('{{ user }}')">
-  <div class="story-circle">
-    {% set file = my_story[-1].filename %}
-    {% if file.endswith(('.mp4','.webm','.ogg','.avi')) %}
-      <video muted><source src="{{ url_for('uploaded_file', filename=file) }}"></video>
-    {% else %}
-      <img src="{{ url_for('uploaded_file', filename=file) }}">
+      {% set my_story = stories | selectattr('username','equalto',user) | list %}
+      {% if my_story %}
+      <div class="story your-story" onclick="openStories('{{ user }}')">
+        <div class="story-circle">
+          {% set file = my_story[-1].filename %}
+          {% if file.endswith(('.mp4','.webm','.ogg','.avi')) %}
+            <video muted><source src="{{ url_for('uploaded_file', filename=file) }}"></video>
+          {% else %}
+            <img src="{{ url_for('uploaded_file', filename=file) }}">
+          {% endif %}
+          <button class="story-menu-btn" onclick="event.stopPropagation();toggleStoryMenu(this)">⋮</button>
+          <div class="story-menu">
+            <button onclick="deleteStory({{ my_story[-1].id }})">Delete</button>
+          </div>
+        </div>
+        <p>You</p>
+      </div>
+      {% endif %}
     {% endif %}
-    <button class="story-menu-btn" onclick="event.stopPropagation();toggleStoryMenu(this)">⋮</button>
-    <div class="story-menu">
-      <button onclick="deleteStory({{ my_story[-1].id }})">Delete</button>
-    </div>
-  </div>
-  <p>You</p>
-</div>
-{% endif %}
-{% endif %}
 
-{% set shown_users=[] %}
-{% for story in stories %}
-{% if story.username!=user and story.username not in shown_users %}
-{% set _=shown_users.append(story.username) %}
-<div class="story" onclick="openStories('{{ story.username }}')">
-  <div class="story-circle">
-    {% if story.filename.endswith(('.mp4','.webm','.ogg','.avi')) %}
-      <video muted><source src="{{ url_for('uploaded_file', filename=story.filename) }}"></video>
-    {% else %}
-      <img src="{{ url_for('uploaded_file', filename=story.filename) }}">
-    {% endif %}
-  </div>
-</div>
-{% endif %}
-{% endfor %}
-
-</div>
     <!-- ================= OTHER USERS STORIES ================= -->
     {% set shown_users = [] %}
     {% for story in stories %}
-      {% if story.username != user and story.username not in shown_users %}
-        {% set _ = shown_users.append(story.username) %}
-        <div class="story" onclick="openStories('{{ story.username }}')">
-          <div class="story-circle">
-            {% set file = story.filename %}
-            {% if file.endswith(('.mp4', '.webm', '.ogg', '.avi')) %}
-              <video class="story-video" muted>
-                <source src="{{ url_for('uploaded_file', filename=file) }}" type="video/mp4">
-              </video>
-            {% else %}
-              <img src="{{ url_for('uploaded_file', filename=file) }}" alt="@{{ story.username }} Story">
-            {% endif %}
+      {% if not user or story.username != user %}
+        {% if story.username not in shown_users %}
+          {% set _ = shown_users.append(story.username) %}
+          <div class="story" onclick="openStories('{{ story.username }}')">
+            <div class="story-circle">
+              {% set file = story.filename %}
+              {% if file.endswith(('.mp4','.webm','.ogg','.avi')) %}
+                <video class="story-video" muted>
+                  <source src="{{ url_for('uploaded_file', filename=file) }}" type="video/mp4">
+                </video>
+              {% else %}
+                <img src="{{ url_for('uploaded_file', filename=file) }}" alt="@{{ story.username }} Story">
+              {% endif %}
+            </div>
           </div>
-        </div>
+        {% endif %}
       {% endif %}
     {% endfor %}
 
@@ -121,12 +106,11 @@
         <!-- ================= POST ACTIONS ================= -->
         <div class="post-actions">
           <button class="like-btn {% if post['liked'] %}liked{% endif %}" 
-        data-post-id="{{ post['id'] }}" 
-        data-like-count="{{ post['like_count'] }}"
-        onclick="likePost(event, {{ post['id'] }}, this)">
-  ❤️ {{ post['like_count'] }} Likes
-</button>
-
+            data-post-id="{{ post['id'] }}" 
+            data-like-count="{{ post['like_count'] }}"
+            onclick="likePost(event, {{ post['id'] }}, this)">
+            ❤️ {{ post['like_count'] }} Likes
+          </button>
 
           <form class="comment-form" onsubmit="submitComment(event, {{ post.id }})">
             <input type="text" name="comment" placeholder="Add comment..." required>
@@ -155,7 +139,6 @@
             {% endif %}
           </div>
           {% endfor %}
-
         </div>
 
       </div>
