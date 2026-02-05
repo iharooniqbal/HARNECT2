@@ -8,27 +8,32 @@
 <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
 <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
 <meta name="theme-color" content="#0b5cff">
+<style>
+/* ===== PROFILE DP ===== */
+.profile-dp{width:130px;height:130px;border-radius:50%;object-fit:cover;border:3px solid var(--accent);box-shadow:0 4px 12px rgba(0,0,0,.2);cursor:pointer;transition:transform .3s}
+.profile-dp:hover{transform:scale(1.05)}
+
+/* ===== MODALS ===== */
+.dp-modal,.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;justify-content:center;align-items:center;padding:20px}
+.dp-modal-content,.modal-content{max-width:90%;max-height:80%;border-radius:12px;object-fit:contain;box-shadow:0 6px 20px rgba(0,0,0,.5);animation:scalePop .35s ease}
+.close-btn{position:absolute;top:20px;right:25px;font-size:32px;color:#fff;cursor:pointer;background:none;border:none;transition:transform .2s}
+.close-btn:hover{transform:scale(1.2)}
+</style>
 </head>
 <body>
 <div class="fade">
 
-<!-- ================= HEADER ================= -->
 <header class="top-nav">
   <div class="logo">HARNECT</div>
   <div class="page-title">{{ profile.username }}'s Profile</div>
   <div class="theme-toggle" id="themeToggle">🌙</div>
 </header>
 
-<!-- ================= PROFILE CONTENT ================= -->
 <main class="content profile-page">
   <div class="profile-info">
-    <!-- PROFILE DP WITH CLICKABLE MODAL -->
-   <img src="{{ url_for('static', filename='uploads/' + profile.profile_pic) }}" class="profile-dp" id="profileDP">
-    <div id="dpModal" class="dp-modal">
-      <span class="close-btn">&times;</span>
-      <img id="modalImg" class="dp-modal-content">
-    </div>
-    
+    <!-- PROFILE DP -->
+    <img src="{{ url_for('static', filename='uploads/' + profile.profile_pic) }}" class="profile-dp" id="profileDP">
+
     <h2>{{ profile.username }}</h2>
     <p>{{ profile.bio }}</p>
 
@@ -59,21 +64,20 @@
     {% endif %}
   </div>
 
-  <!-- ================= PROFILE POSTS ================= -->
   <h3>{{ profile.username }}'s Posts</h3>
   <div class="profile-grid">
     {% for post in posts %}
       <div class="post" id="post-{{ post.id }}">
         {% if post.filename.endswith(('.mp4','.webm','.mov','.avi')) %}
-          <video controls width="100%">
+          <video controls width="100%" onclick="openPostModal('{{ url_for('static', filename='uploads/' + post.filename) }}')">
             <source src="{{ url_for('static', filename='uploads/' + post.filename) }}" type="video/mp4">
           </video>
         {% else %}
-          <img src="{{ url_for('static', filename='uploads/' + post.filename) }}" alt="{{ post.caption }}">
+          <img src="{{ url_for('static', filename='uploads/' + post.filename) }}" alt="{{ post.caption }}" onclick="openPostModal(this.src)">
         {% endif %}
 
         <div class="post-actions">
-          <button onclick="likePost(event, {{ post.id }}, this)" class="like-btn {% if user in post.likes %}liked{% endif %}">❤️ {{ post.likes|length if post.likes else 0 }} Likes</button>
+          <button onclick="likePost({{ post.id }}, this)" class="like-btn {% if user in post.likes %}liked{% endif %}">❤️ {{ post.likes|length if post.likes else 0 }} Likes</button>
           <button onclick="toggleComment({{ post.id }})">💬 Comment</button>
           <button onclick="sharePost('{{ url_for('static', filename='uploads/' + post.filename) }}')">🔄 Share</button>
           {% if user == profile.username %}
@@ -81,7 +85,7 @@
           {% endif %}
         </div>
 
-        <div class="comments" id="comments-{{ post.id }}">
+        <div class="comments" id="comments-{{ post.id }}" style="display:none;">
           {% for c in post.comments %}
             <div class="comment" id="comment-{{ c.id }}">
               <strong>@{{ c.username }}:</strong>
@@ -104,7 +108,18 @@
   </div>
 </main>
 
-<!-- ================= BOTTOM NAV ================= -->
+<!-- DP Modal -->
+<div id="dpModal" class="dp-modal">
+  <span class="close-btn">&times;</span>
+  <img id="dpModalImg" class="dp-modal-content">
+</div>
+
+<!-- POST Modal -->
+<div id="postModal" class="modal">
+  <span class="close-btn" id="closePostModal">&times;</span>
+  <img id="postModalImg" class="modal-content">
+</div>
+
 <nav class="bottom-nav">
   <a href="{{ url_for('index') }}">🏠<span>Home</span></a>
   <a href="{{ url_for('explore') }}">🔍<span>Explore</span></a>
@@ -113,30 +128,83 @@
   <a href="{% if user %}{{ url_for('profile', username=user) }}{% else %}{{ url_for('login') }}{% endif %}">👤<span>Profile</span></a>
 </nav>
 
-<!-- ================= SCRIPTS ================= -->
-<script src="{{ url_for('static', filename='script.js') }}"></script>
 <script>
-// Delete Post
+// ===== DP Modal =====
+const dp = document.getElementById("profileDP");
+const dpModal = document.getElementById("dpModal");
+const dpModalImg = document.getElementById("dpModalImg");
+const dpCloseBtn = dpModal.querySelector(".close-btn");
+
+dp.onclick = () => { dpModal.style.display="flex"; dpModalImg.src = dp.src; };
+dpCloseBtn.onclick = () => dpModal.style.display="none";
+dpModal.onclick = e => { if(e.target === dpModal) dpModal.style.display="none"; };
+
+// ===== POST Modal =====
+const postModal = document.getElementById("postModal");
+const postModalImg = document.getElementById("postModalImg");
+const postCloseBtn = document.getElementById("closePostModal");
+
+function openPostModal(src){
+  postModal.style.display="flex";
+  postModalImg.src = src;
+}
+postCloseBtn.onclick = () => postModal.style.display="none";
+postModal.onclick = e => { if(e.target===postModal) postModal.style.display="none"; }
+
+// ===== Toggle Comments =====
+function toggleComment(postId){
+  const c = document.getElementById(`comments-${postId}`);
+  c.style.display = (c.style.display==="none") ? "block" : "none";
+}
+
+// ===== Like Post =====
+function likePost(postId, btn){
+  fetch(`/like_post/${postId}`, {method:'POST'})
+  .then(res=>res.json())
+  .then(data=>{
+    if(data.success){
+      btn.textContent = `❤️ ${data.likes}`;
+      btn.classList.toggle('liked', data.liked);
+    }
+  });
+}
+
+// ===== Submit Comment =====
+function submitComment(e, postId){
+  e.preventDefault();
+  const form = e.target;
+  const comment = form.comment.value;
+  fetch(`/comment_post/${postId}`, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({text:comment})
+  }).then(res=>res.json())
+  .then(data=>{
+    if(data.success){
+      const cDiv = document.getElementById(`comments-${postId}`);
+      cDiv.insertAdjacentHTML('beforeend', data.comment_html);
+      form.reset();
+    }
+  });
+}
+
+// ===== Delete Post =====
 function deletePost(postId, postElementId){
   if(!confirm("Are you sure you want to delete this post?")) return;
   fetch(`/delete_post/${postId}`, { method:'POST' })
   .then(res=>res.json())
-  .then(data=>{if(data.success)document.getElementById(postElementId).remove();else alert(data.error||"Could not delete post.");});
+  .then(data=>{
+    if(data.success) document.getElementById(postElementId).remove();
+    else alert(data.error||"Could not delete post.");
+  });
 }
 
-// DP Modal
-const dp=document.getElementById("profileDP"),modal=document.getElementById("dpModal"),modalImg=document.getElementById("modalImg"),closeBtn=modal.querySelector(".close-btn");
-dp.onclick=()=>{modal.style.display="flex";modalImg.src=dp.src;}
-closeBtn.onclick=()=>modal.style.display="none";
-modal.onclick=e=>{if(e.target===modal)modal.style.display="none";}
+// ===== Share Post =====
+function sharePost(url){
+  if(navigator.share){ navigator.share({url}); }
+  else{ prompt("Copy this link", url); }
+}
 </script>
-
-<style>
-.profile-dp{width:130px;height:130px;border-radius:50%;object-fit:cover;border:3px solid var(--accent);box-shadow:0 4px 12px rgba(0,0,0,.2);cursor:pointer;transition:transform .3s}.profile-dp:hover{transform:scale(1.05)}
-.dp-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;justify-content:center;align-items:center;padding:20px}
-.dp-modal-content{max-width:90%;max-height:80%;border-radius:12px;object-fit:contain;box-shadow:0 6px 20px rgba(0,0,0,.5);animation:scalePop .35s ease}
-.dp-modal .close-btn{position:absolute;top:20px;right:25px;font-size:32px;color:#fff;cursor:pointer;background:none;border:none;transition:transform .2s}.dp-modal .close-btn:hover{transform:scale(1.2)}
-</style>
 
 </div>
 </body>
