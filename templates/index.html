@@ -57,11 +57,13 @@
     {% endif %}
 
     <!-- ================= OTHER USERS STORIES ================= -->
-    {% set shown_users = [] %}
-    {% for story in stories %}
-      {% if not user or story.username != user %}
-        {% if story.username not in shown_users %}
-          {% set _ = shown_users.append(story.username) %}
+    {% set ns = namespace(shown_users=[]) %}
+
+{% for story in stories %}
+  {% if not user or story.username != user %}
+    {% if story.username not in ns.shown_users %}
+      {% set ns.shown_users = ns.shown_users + [story.username] %}
+
           <div class="story" onclick="openStories('{{ story.username }}')">
             <div class="story-circle">
               {% set file = story.filename %}
